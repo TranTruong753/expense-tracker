@@ -1,0 +1,22 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TranTruong753/expense-tracker.git"
+  },
+  "keywords": [
+    "expense-tracker"
+  ],
+  "author": "Tran Quang Truong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TranTruong753/expense-tracker/issues"
+  },
+  "homepage": "https://github.com/TranTruong753/expense-tracker#readme",
+  "description": ""
+}
