@@ -1,10 +1,27 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
 import App from './App.tsx'
+import { BrowserRouter } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+import { NotificationsProvider } from '@toolpad/core'
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <NotificationsProvider
+          slotProps={{
+            snackbar: {
+              anchorOrigin: { vertical: 'top', horizontal: 'right' },
+              autoHideDuration: 2000
+            },
+          }}
+        >
+          <App />
+        </NotificationsProvider>
+      </GoogleOAuthProvider>
+    </BrowserRouter>
   </StrictMode>,
 )
