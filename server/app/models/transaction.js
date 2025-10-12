@@ -10,9 +10,13 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         enum: ['INCOME', 'EXPENSE']
     },
-    accountNumber: { type: String, required: true },
-    balance: { type: Number, default: 0 },
-    initialBalance: { type: Number, default: 0 },
+    description: {
+        type: String
+    },
+    transactionDate: {
+        type: Date
+    },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Categories', required: true, index: true },
 }, {
     timestamps: true
 });

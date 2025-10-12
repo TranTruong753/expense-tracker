@@ -10,7 +10,7 @@ const categoriesSchema = new mongoose.Schema({
         enum: ['INCOME', 'EXPENSE'],
     },
     icon: { type: String },
-    isDefault: { Boolean },
+    isDefault: { type: Boolean, default: true },
 
 }, {
     timestamps: true
@@ -18,10 +18,12 @@ const categoriesSchema = new mongoose.Schema({
 
 categoriesSchema.set('toJSON', {
     transform: (doc, ret) => {
-        delete ret.__v; // dọn gọn JSON trả về
+        ret.id = ret._id;      
+        delete ret._id;      
+        delete ret.__v; 
         return ret;
     },
 });
 
 
-export default mongoose.model('categories', categoriesSchema);
+export default mongoose.model('Categories', categoriesSchema);

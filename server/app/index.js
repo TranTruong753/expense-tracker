@@ -5,13 +5,14 @@ import dotenv from 'dotenv'
 import route from './routes/index.js';
 import bodyParser from 'body-parser';
 import cors from "cors";
+import errorHandler from './middleware/errorMiddleware.js'
 
 dotenv.config()
 db.connect();
 
 const app = express()
 // set up port
-const port = 5001;
+const port = 5002;
 
 app.use(cors({
   origin: "http://localhost:5173",   
@@ -26,6 +27,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // set up route
 route(app);
+
+// --- Middleware xử lý lỗi ---
+app.use(errorHandler);
 
 app.get('/', (req, res) => {
   res.status(200).json({
