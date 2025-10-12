@@ -65,9 +65,9 @@ class authController {
                 bankName,
             });
             if (existingAccount) {
-                return res.status(400).json({
+                return res.status(409).json({
                     success: false,
-                    message: 'Số tài khoản này đã tồn tại',
+                    message: 'Số tài khoản này đã tồn tại!',
                 });
             }
 
@@ -79,6 +79,62 @@ class authController {
                 success: true,
                 redirectTo: '/',
             });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // [GET] /api/auth/profile
+    async getProfile(req, res, next) {
+        try {
+            // Lấy token từ header
+            const authHeader = req.headers.authorization;
+
+            if (!authHeader || !authHeader.startsWith("Bearer ")) {
+                return res.status(401).json({ message: "Unauthorized: Missing token" });
+            }
+
+            const token = authHeader.split(" ")[1];
+
+            // Giải mã token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            //  Tìm user theo id trong payload
+            const user = await User.findById(decoded.id);
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            //  Trả về thông tin user
+            res.json({
+                success: true,
+                user,
+            });
+        } catch (error) {
+            next(error);
+        }
+
+    }
+
+    // [GET] /api/auth/check-token
+    async checkToken(req, res, next) {
+        try {
+            const authHeader = req.headers.authorization;
+
+            if (!authHeader || !authHeader.startsWith("Bearer ")) {
+                return res.status(401).json({ message: "Unauthorized: Missing token" });
+            }
+
+            const token = authHeader.split(" ")[1];
+
+            // Giải mã token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            if (decoded) return res.status(200).json({
+                success: true
+            })
+
         } catch (error) {
             next(error);
         }
