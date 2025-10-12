@@ -91,8 +91,8 @@ export interface AuthContextType {
     setLoadingPage: (loadingPage: boolean) => void;
     listCategories: Category[] | null
     setListCategories: (listCategories: Category[] | null) => void
-    listTransaction: Transaction[] | null
-    setListTransaction: (listTransaction: Transaction[] | null) => void
+    listTransaction: TransactionStatement[] | null
+    setListTransaction: (listTransaction: TransactionStatement[] | null) => void
 }
 
 export interface ProfileResponse {

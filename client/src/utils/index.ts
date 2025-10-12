@@ -1,4 +1,4 @@
-import type { BankAccount } from "../types";
+import type { BankAccount, TransactionStatement } from "../types";
 
 // Danh sách ngân hàng phổ biến ở Việt Nam
 export const popularBanks: string[] = [
@@ -64,9 +64,14 @@ export const changeBalanceBank = (id: string, newBank: BankAccount, listBank: Ba
 
 export const addItemBalanceBank = (newBank: BankAccount, listBank: BankAccount[] | null, setListBank: (listBank: BankAccount[] | null) => void) => {
     if (!listBank) return;
-
     const newList = [...listBank];
     newList.push(newBank);
-
     setListBank(newList);
 };
+
+export const addItemTransaction = (newTransaction: TransactionStatement, listTransaction: TransactionStatement[] | null, setListTransaction: (listTransaction: TransactionStatement[] | null) => void) => {
+    if (!listTransaction) return;
+    const newList = [...listTransaction];
+    newList.unshift(newTransaction);
+    setListTransaction(newList);
+}
