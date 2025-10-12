@@ -15,17 +15,15 @@ import {
 } from '@mui/material';
 import { AccountBalanceWallet, AttachMoney } from '@mui/icons-material';
 import { useAuth } from "../../hook/useAuth";
-import type {  ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
+import type { ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
 import { apiCreateTransaction } from '../../services/transactionService';
 import { useNotifications } from '@toolpad/core';
 import dayjs from 'dayjs';
-import { changeBalanceBank, styleModal } from '../../utils';
-
-
+import { addItemTransaction, changeBalanceBank, styleModal } from '../../utils';
 
 const IncomeModal = ({ open, onClose }: ModalProps) => {
 
-    const { listBank, listCategories, user, setListBank } = useAuth()
+    const { listBank, listCategories, user, setListBank, listTransaction, setListTransaction } = useAuth()
 
     const notifications = useNotifications()
 
@@ -90,12 +88,13 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
                 console.log(res)
                 if (res.success) {
                     changeBalanceBank(res.bank.id, res.bank, listBank, setListBank)
-                    handleClose() 
+                    addItemTransaction(res.data, listTransaction, setListTransaction)
+                    handleClose()
                     notifications.show('Thêm mới thu nhập thành công', {
                         severity: "success",
                     });
                 }
-            } catch {       
+            } catch {
                 return notifications.show('Có lỗi bên phía máy chủ! vui lòng thử lại sau', {
                     severity: "error",
                 });
@@ -187,7 +186,7 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
                             >
                                 {listBank && listBank.map((bank) => (
                                     <MenuItem key={bank.id} value={bank.id}>
-                                        {bank.bankName}
+                                        {bank.bankName} - stk: {bank.accountNumber}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -204,7 +203,7 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
                                 label="Danh Mục"
                                 onChange={handleChange('categoryId')}
                             >
-                                {listCategories && listCategories.filter((category)=>category.type==='INCOME').map((category) => (
+                                {listCategories && listCategories.filter((category) => category.type === 'INCOME').map((category) => (
                                     <MenuItem key={category.id} value={category.id}>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                             {category.icon} {category.name}
@@ -265,3 +264,4 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
 };
 
 export default IncomeModal;
+

@@ -21,8 +21,16 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                     primary={
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <Box>
-                                <Typography variant="body1" fontWeight="medium">
+                                <Typography variant="body1" fontWeight="600" fontSize={'18px'}>
                                     {transaction.category} {transaction.categoryIcon}
+                                </Typography>
+                                <Typography variant="body2" fontWeight="500" fontSize={'14px'} sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: '30rem',
+                                }}>
+                                    Nội dung: {transaction.description}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                                     <Typography>
@@ -38,16 +46,21 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                                 </Box>
                             </Box>
 
-                            <Typography
-                                variant="h6"
-                                fontWeight="bold"
-                                color={transaction.type === 'INCOME' ? 'success.main' : 'error.main'}
-                                sx={{
-                                    textAlign: 'right'
-                                }}
-                            >
-                                {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount ? Number(transaction.amount) : 0)}
-                            </Typography>
+                            <Box>
+                                <Typography variant="body1" fontWeight="medium">
+                                    {transaction.bank}
+                                </Typography>
+                                <Typography
+                                    variant="h6"
+                                    fontWeight="bold"
+                                    color={transaction.type === 'INCOME' ? 'success.main' : 'error.main'}
+                                    sx={{
+                                        textAlign: 'right'
+                                    }}
+                                >
+                                    {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount ? Number(transaction.amount) : 0)}
+                                </Typography>
+                            </Box>
                         </Box>
                     }
                 />

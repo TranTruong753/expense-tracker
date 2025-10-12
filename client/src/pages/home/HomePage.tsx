@@ -8,38 +8,49 @@ import {
     Paper,
     Container,
     Avatar,
-    Stack
+    Stack,
+    List
 } from '@mui/material';
 import {
     AccountBalance,
     AccountBalanceWallet,
-    Add,
     BarChart
 } from '@mui/icons-material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import React from 'react';
+import BankCard from '../../components/bank/BankAccountCard';
+import { formatCurrency } from '../../utils';
+import ExpenseModal from '../../components/modal/ExpenseModal ';
+import IncomeModal from '../../components/modal/IncomeModal';
+import { useNavigate } from 'react-router-dom';
+import HistoryIcon from '@mui/icons-material/History';
+import TransactionCard from '../../components/transaction/TransactionCard';
+import { useAuth } from '../../hook/useAuth';
+
 
 const HomePage = () => {
-    // Dữ liệu mẫu
-    const userData = {
-        name: "Nguyễn Văn A",
-        totalBalance: 25000000,
-        bankAccounts: [
-            { id: 1, bankName: "Vietcombank", balance: 15000000, color: "#1976d2" },
-            { id: 2, bankName: "Techcombank", balance: 10000000, color: "#2e7d32" },
-            { id: 2, bankName: "Techcombank", balance: 10000000, color: "#2e7d32" }
-        ]
-    };
+    const { user, listBank, listTransaction } = useAuth();
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(amount);
-    };
+    const navigator = useNavigate()
+
+    const [openExpense, setOpenExpense] = React.useState(false);
+    const handleOpenExpense = () => setOpenExpense(true);
+    const handleCloseExpense = () => setOpenExpense(false);
+
+    const [openIncome, setOpenIncome] = React.useState(false);
+    const handleOpenIncome = () => setOpenIncome(true);
+    const handleCloseIncome = () => setOpenIncome(false);
+
+
+    const totalBalance = React.useMemo(() => {
+        if (!listBank) return 0;
+        return listBank.reduce((sum, item) => sum + item.balance, 0);
+    }, [listBank]);
+
 
     return (
-        <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Container maxWidth="xl" sx={{ py: 3 }}>
             {/* Header */}
             <Paper
                 elevation={1}
@@ -54,16 +65,13 @@ const HomePage = () => {
                 }}
             >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)' }}>
-                        👤
+                    <Avatar src={user?.avatar}>
                     </Avatar>
                     <Typography variant="h6" fontWeight="bold">
-                        {userData.name}
+                        {user?.name}
                     </Typography>
                 </Box>
                 <Stack direction={'row'} spacing={2}>
-
-
 
                     <Button
                         variant="contained"
@@ -73,126 +81,124 @@ const HomePage = () => {
                             color: 'white',
                             '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' }
                         }}
+                        onClick={() => navigator('/statement')}
                     >
                         Xem sao kê
                     </Button>
                 </Stack>
             </Paper>
 
-            <Stack direction={'row'} alignItems={'center'} justifyContent={'end'} spacing={2} mb={2}>
-                <Button
-                    variant="contained"
-                    startIcon={<TrendingUpIcon />}
-                    color='primary'
-                    sx={{
-                        bgcolor: '#f8f9fa',
-                        color: '#20c441',
-                        textTransform: 'none',
-                        '&:hover': { bgcolor: '#20c441', color: 'white' }
-                    }}
-                >
-                    Tiền vào
-                </Button>
 
-                <Button
-                    variant="contained"
-                    startIcon={<TrendingDownIcon />}
-                    color='primary'
-                    sx={{
-                        bgcolor: '#f8f9fa',
-                        color: '#e21212',
-                        textTransform: 'none',
-                        '&:hover': { bgcolor: '#e21212', color: 'white' }
-                    }}
-                >
-                    Tiền ra
-                </Button>
-            </Stack>
 
             {/* Tổng tài sản */}
-            <Card sx={{ mb: 3, bgcolor: '#f8f9fa' }}>
-                <CardContent sx={{ textAlign: 'start', py: 4 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', mb: 1 }}>
-                        <AccountBalanceWallet sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6" color="text.secondary" fontSize={'14px'} fontWeight={600}>
-                            Số dư hiện tại:
-                        </Typography>
-                    </Box>
-                    <Typography variant="h4" fontWeight="bold" color="primary">
-                        {formatCurrency(userData.totalBalance)}
-                    </Typography>
+            <Card sx={{ mb: 3, bgcolor: '#background.paper' }}>
+                <CardContent sx={{ py: 2 }}>
+                    <Stack direction={'row'} justifyContent={'space-between'} alignItems={'start'} sx={{ pl: 1 }}>
+
+                        <Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', mb: 1 }}>
+                                <AccountBalanceWallet sx={{ mr: 1, color: 'primary.main' }} />
+                                <Typography variant="h6" color="text.secondary" fontSize={'14px'} fontWeight={600}>
+                                    Số dư hiện tại:
+                                </Typography>
+                            </Box>
+                            <Typography variant="h4" fontWeight="bold" color="primary">
+                                {formatCurrency(totalBalance)}
+                            </Typography>
+                        </Box>
+
+                        <Stack direction={'row'} alignItems={'center'} justifyContent={'end'} spacing={2} mb={2}>
+                            <Button
+                                variant="contained"
+                                startIcon={<TrendingUpIcon />}
+                                color='primary'
+                                sx={{
+                                    bgcolor: '#f8f9fa',
+                                    color: '#20c441',
+                                    textTransform: 'none',
+                                    '&:hover': { bgcolor: '#20c441', color: 'white' }
+                                }}
+                                onClick={() => handleOpenIncome()}
+                            >
+                                Tiền vào
+                            </Button>
+
+                            <Button
+                                variant="contained"
+                                startIcon={<TrendingDownIcon />}
+                                color='primary'
+                                sx={{
+                                    bgcolor: '#f8f9fa',
+                                    color: '#e21212',
+                                    textTransform: 'none',
+                                    '&:hover': { bgcolor: '#e21212', color: 'white' }
+                                }}
+                                onClick={() => handleOpenExpense()}
+                            >
+                                Tiền ra
+                            </Button>
+                        </Stack>
+                    </Stack>
                 </CardContent>
             </Card>
 
-            {/* Tài khoản ngân hàng */}
-            <Stack direction='row' alignItems={'center'} justifyContent={'space-between'} sx={{ mb: 2 }}>
-                <Stack direction='row' alignItems={'center'} >
-                    <AccountBalance sx={{ mr: 1, color: 'text.secondary' }} />
-                    <Typography variant="h6" color="text.secondary" fontWeight={600}>
-                        TÀI KHOẢN NGÂN HÀNG
-                    </Typography>
-                </Stack>
+            <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Stack direction='row' alignItems={'center'} justifyContent={'space-between'} sx={{ mb: 2 }}>
+                        <Stack direction='row' alignItems={'center'} >
+                            <AccountBalance sx={{ mr: 1, color: 'text.secondary' }} />
+                            <Typography variant="h6" color="text.secondary" fontWeight={600}>
+                                TÀI KHOẢN NGÂN HÀNG
+                            </Typography>
+                        </Stack>
 
+                    </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, md: 8 }}>
+                    <Stack direction='row' alignItems={'center'} justifyContent={'space-between'} sx={{ mb: 2 }}>
+                        <Stack direction='row' alignItems={'center'} >
+                            <HistoryIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                            <Typography variant="h6" color="text.secondary" fontWeight={600}>
+                                LỊCH SỬ GIAO DỊCH
+                            </Typography>
+                        </Stack>
 
-                {/* Nút thêm tài khoản */}
-                {/* <Button
-                    variant="outlined"
-
-                    startIcon={<Add />}
-                    sx={{
-                        py: 1.5,
-                        borderStyle: 'dashed',
-                        borderWidth: 2,
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
-                        '&:hover': {
-                            borderStyle: 'dashed',
-                            borderWidth: 2,
-                            bgcolor: 'primary.light',
-                            color: 'white'
-                        }
-                    }}
-                >
-                    Thêm tài khoản
-                </Button> */}
-            </Stack>
-
-
-            {/* Danh sách tài khoản */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-                {userData.bankAccounts.map((account) => (
-                    <Grid size={{ md: 12 }} key={account.id}>
-                        <Card
-                            variant="outlined"
-                            sx={{
-                                borderLeft: `4px solid ${account.color}`,
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    boxShadow: 2,
-                                    transform: 'translateY(-2px)'
-                                }
-                            }}
-                        >
-                            <CardContent>
-                                <Typography variant="h6" gutterBottom>
-                                    {account.bankName}
-                                </Typography>
-                                <Typography variant="body1" color="text.secondary">
-                                    Số dư:
-                                    <Typography
-                                        component="span"
-                                        variant="h6"
-                                        color="primary"
-                                        sx={{ ml: 1, fontWeight: 'bold' }}
-                                    >
-                                        {formatCurrency(account.balance)}
-                                    </Typography>
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
+                    </Stack>
+                </Grid>
             </Grid>
+
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+
+                    {listBank?.map(account => (
+                        <Box key={account.id}>
+                            <BankCard account={account} />
+                        </Box>
+                    ))}
+
+
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 8 }}>
+
+                    <Card sx={{ minHeight: '40vh' }}>
+                        <CardContent sx={{ py: 0 }}>
+                            <List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                                {listTransaction?.map((transaction) => (
+                                   <Box key={transaction.id} > <TransactionCard transaction={transaction} /></Box>
+                                ))}
+                            </List>
+                        </CardContent>
+                    </Card>
+
+                </Grid>
+            </Grid>
+
+            {/* Modal */}
+
+            <ExpenseModal open={openExpense} onClose={handleCloseExpense} />
+
+            <IncomeModal open={openIncome} onClose={handleCloseIncome} />
 
 
         </Container>

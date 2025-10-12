@@ -15,18 +15,18 @@ import {
 } from '@mui/material';
 import { AccountBalanceWallet, AttachMoney } from '@mui/icons-material';
 import { useAuth } from "../../hook/useAuth";
-import type {  ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
+import type { ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
 import { apiCreateTransaction } from '../../services/transactionService';
 import { useNotifications } from '@toolpad/core';
 import type { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { changeBalanceBank, formatCurrency, styleModal } from '../../utils';
+import { addItemTransaction, changeBalanceBank, formatCurrency, styleModal } from '../../utils';
 
 
 
 const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
-    const { listBank, listCategories, user, setListBank } = useAuth()
+    const { listBank, listCategories, user, setListBank, listTransaction, setListTransaction } = useAuth()
 
     const notifications = useNotifications()
 
@@ -91,7 +91,8 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                 console.log(res)
                 if (res.success) {
                     changeBalanceBank(res.bank.id, res.bank, listBank, setListBank)
-                    handleClose() 
+                    addItemTransaction(res.data, listTransaction, setListTransaction)
+                    handleClose()
                     notifications.show('Thêm mới chi tiêu thành công', {
                         severity: "success",
                     });
@@ -214,7 +215,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                                 label="Danh Mục"
                                 onChange={handleChange('categoryId')}
                             >
-                                {listCategories && listCategories.filter((category)=>category.type==='EXPENSE').map((category) => (
+                                {listCategories && listCategories.filter((category) => category.type === 'EXPENSE').map((category) => (
                                     <MenuItem key={category.id} value={category.id}>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                             {category.icon} {category.name}

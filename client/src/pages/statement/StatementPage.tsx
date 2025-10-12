@@ -1,118 +1,77 @@
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Box,
     Card,
     CardContent,
     Typography,
     Button,
-    TextField,
     Grid,
     Container,
-    Paper,
     Divider,
     List,
-    ListItem,
-    ListItemText,
-    ListItemIcon,
-    Chip,
-    useTheme,
-    useMediaQuery,
     Stack
 } from '@mui/material';
 import {
     Search,
     TrendingUp,
     TrendingDown,
-    AccountBalance,
     Receipt,
-    DateRange
+    Delete
 } from '@mui/icons-material';
+import type { Dayjs } from 'dayjs';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import type { StatementIf } from '../../types';
+import { apiGetListTransactionFromDayToDay, apiGetStatement } from '../../services/transactionService';
+import { formatCurrency } from '../../utils';
+import TransactionCard from '../../components/transaction/TransactionCard';
+import { useNotifications } from '@toolpad/core';
+
 
 const StatementPage = () => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [statementDataObj, setStatementDataObj] = React.useState<Partial<StatementIf>>()
+    const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
+    const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
-    const [filters, setFilters] = useState({
-        startDate: '2023-11-01',
-        endDate: '2023-11-30'
-    });
+    const notifications = useNotifications()
 
-    // Dữ liệu mẫu
-    const statementData = {
-        summary: {
-            openingBalance: 20000000,
-            totalIncome: 5000000,
-            totalExpense: 2000000,
-            closingBalance: 23000000
-        },
-        transactions: [
-            {
-                id: 1,
-                date: '2023-11-15',
-                description: 'Mua sách',
-                amount: -500000,
-                type: 'expense',
-                category: 'Giáo dục'
-            },
-            {
-                id: 2,
-                date: '2023-11-10',
-                description: 'Lương tháng 11',
-                amount: 5000000,
-                type: 'income',
-                category: 'Lương'
-            },
-            {
-                id: 3,
-                date: '2023-11-05',
-                description: 'Ăn tối với bạn',
-                amount: -300000,
-                type: 'expense',
-                category: 'Ăn uống'
-            },
-            {
-                id: 4,
-                date: '2023-11-03',
-                description: 'Mua quần áo',
-                amount: -700000,
-                type: 'expense',
-                category: 'Thời trang'
-            },
-            {
-                id: 5,
-                date: '2023-11-01',
-                description: 'Tiền thưởng',
-                amount: 1000000,
-                type: 'income',
-                category: 'Thưởng'
-            }
-        ]
-    };
+    const handleReset = () => {
+        setStatementDataObj({})
+    }
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        }).format(amount);
-    };
+    const handleSearch = async () => {
+        const fromDate = dayjs(startDate).format('YYYY-MM-DD');
+        const toDate = dayjs(endDate).format('YYYY-MM-DD');
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('vi-VN');
-    };
+        try {
+            const [statementRes, transactionRes] = await Promise.all([
+                apiGetStatement({ fromDate, toDate }),
+                apiGetListTransactionFromDayToDay({ fromDate, toDate }),
+            ]);
 
-    const handleSearch = () => {
-        // Xử lý tìm kiếm theo khoảng thời gian
-        console.log('Tìm kiếm từ:', filters.startDate, 'đến:', filters.endDate);
+            setStatementDataObj({
+                summary: statementRes.data,
+                transactions: transactionRes.data
+            })
+
+        } catch {
+            notifications.show('Lỗi máy chủ ! vui lòng thử lại sau',{
+                severity: 'error'
+            })
+        }
+
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 3 }}>
-           
+        <Container maxWidth="xl" sx={{ py: 3 }}>
+
             <Stack direction='column' alignItems={'start'} spacing={1} sx={{ mb: 2 }}>
                 <Stack direction='row' alignItems={'center'} >
                     <ReceiptLongIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6" color="text.secondary" fontWeight={600}>
+                    <Typography variant="h6" color="primary.main" fontWeight={600}>
                         SAO KÊ
                     </Typography>
 
@@ -123,46 +82,82 @@ const StatementPage = () => {
             </Stack>
 
             {/* Bộ lọc thời gian */}
+
             <Card sx={{ mb: 3 }}>
                 <CardContent>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid size={{ xs: 12, sm: 5 }} >
-                            <TextField
-                                fullWidth
-                                label="Từ ngày"
-                                type="date"
-                                value={filters.startDate}
-                                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 5 }}>
-                            <TextField
-                                fullWidth
-                                label="Đến ngày"
-                                type="date"
-                                value={filters.endDate}
-                                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                                InputLabelProps={{ shrink: true }}
-                            />
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 2 }}>
+                    <Stack direction={'row'} justifyContent={'start'} alignItems={'center'} spacing={3}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Stack direction="row" spacing={3} justifyContent={'space-between'}>
+                                <DatePicker
+                                    label="Từ ngày"
+                                    value={startDate}
+                                    onChange={(newValue) => setStartDate(newValue)}
+                                    maxDate={dayjs()}
+                                    format='DD/MM/YYYY'
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            fullWidth: true,
+                                            required: true,                
+                                        }
+                                    }}
+
+                                />
+                                <DatePicker
+                                    label="Đến ngày"
+                                    value={endDate}
+                                    minDate={startDate ? startDate : undefined} // không cho chọn nhỏ hơn ngày bắt đầu
+                                    onChange={(newValue) => setEndDate(newValue)}
+                                    maxDate={dayjs()}
+                                    format='DD/MM/YYYY'
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            fullWidth: true,
+                                            required: true,                        
+                                        }
+                                    }}
+                                />
+                            </Stack>
+                        </LocalizationProvider>
+
+
+                     <Stack direction={'row'} spacing={1}>
                             <Button
-                                fullWidth
                                 variant="contained"
                                 startIcon={<Search />}
                                 onClick={handleSearch}
-                                sx={{ py: 1.5 }}
+                                sx={{
+                                    py: 1.5,
+                                    textTransform: 'none',
+                                    height: '40px'
+                                }}
                             >
-                                TÌM KIẾM
+                                Tìm kiếm
                             </Button>
-                        </Grid>
-                    </Grid>
+    
+                            <Button
+                                variant="contained"
+                                startIcon={<Delete />}
+                                onClick={handleReset}
+                                sx={{
+                                    py: 1.5,
+                                    textTransform: 'none',
+                                    height: '40px'
+                                }}
+                                color='error'
+                            >
+                                Xóa dữ liệu
+                            </Button>
+                     </Stack>
+
+                    </Stack>
+
                 </CardContent>
             </Card>
 
             <Grid container spacing={3}>
-                {/* Phần tổng hợp bên trái */}
+                {/* Phần tổng hợp */}
                 <Grid size={{ xs: 12, sm: 4 }}>
                     <Card sx={{ height: '100%' }}>
                         <CardContent>
@@ -178,8 +173,8 @@ const StatementPage = () => {
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                     Số dư đầu kỳ:
                                 </Typography>
-                                <Typography variant="h6" color="primary" fontWeight="bold">
-                                    {formatCurrency(statementData.summary.openingBalance)}
+                                <Typography variant="h6" color="primary" fontWeight="bold" height={'20px'}>
+                                    {statementDataObj?.summary ? formatCurrency(Number(statementDataObj?.summary?.startBalance)) : ' '}
                                 </Typography>
                             </Box>
 
@@ -192,7 +187,7 @@ const StatementPage = () => {
                                     <Typography variant="body1">Tổng thu:</Typography>
                                 </Box>
                                 <Typography variant="h6" color="success.main" fontWeight="bold">
-                                    +{formatCurrency(statementData.summary.totalIncome)}
+                                    {statementDataObj?.summary ? `+ ${formatCurrency(Number(statementDataObj?.summary?.totalIncome))}` : ' '}
                                 </Typography>
                             </Box>
 
@@ -203,7 +198,7 @@ const StatementPage = () => {
                                     <Typography variant="body1">Tổng chi:</Typography>
                                 </Box>
                                 <Typography variant="h6" color="error.main" fontWeight="bold">
-                                    {formatCurrency(statementData.summary.totalExpense)}
+                                    {statementDataObj?.summary ? `- ${formatCurrency(Number(statementDataObj?.summary?.totalExpense))}` : ' '}
                                 </Typography>
                             </Box>
 
@@ -215,14 +210,14 @@ const StatementPage = () => {
                                     Số dư cuối kỳ:
                                 </Typography>
                                 <Typography variant="h5" color="primary" fontWeight="bold">
-                                    {formatCurrency(statementData.summary.closingBalance)}
+                                    {statementDataObj?.summary ? ` ${formatCurrency(Number(statementDataObj?.summary?.endBalance))}` : ' '}
                                 </Typography>
                             </Box>
                         </CardContent>
                     </Card>
                 </Grid>
 
-                {/* Phần chi tiết giao dịch bên phải */}
+                {/* Phần chi tiết giao dịch */}
                 <Grid size={{ xs: 12, sm: 8 }}>
                     <Card>
                         <CardContent>
@@ -233,55 +228,9 @@ const StatementPage = () => {
                                 </Typography>
                             </Box>
 
-                            <List sx={{ width: '100%' }}>
-                                {statementData.transactions.map((transaction) => (
-                                    <React.Fragment key={transaction.id}>
-                                        <ListItem alignItems="flex-start" sx={{ px: 0 }}>
-                                            <ListItemIcon sx={{ minWidth: 40 }}>
-                                                {transaction.type === 'income' ? (
-                                                    <TrendingUp sx={{ color: 'success.main' }} />
-                                                ) : (
-                                                    <TrendingDown sx={{ color: 'error.main' }} />
-                                                )}
-                                            </ListItemIcon>
-
-                                            <ListItemText
-                                                primary={
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                        <Box>
-                                                            <Typography variant="body1" fontWeight="medium">
-                                                                {transaction.description}
-                                                            </Typography>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                                                <Typography variant="body2" color="text.secondary">
-                                                                    {formatDate(transaction.date)}
-                                                                </Typography>
-                                                                <Chip
-                                                                    label={transaction.category}
-                                                                    size="small"
-                                                                    variant="outlined"
-                                                                    sx={{ height: 20, fontSize: '0.7rem' }}
-                                                                />
-                                                            </Box>
-                                                        </Box>
-
-                                                        <Typography
-                                                            variant="h6"
-                                                            fontWeight="bold"
-                                                            color={transaction.type === 'income' ? 'success.main' : 'error.main'}
-                                                            sx={{
-                                                                fontSize: isMobile ? '1rem' : '1.25rem',
-                                                                textAlign: 'right'
-                                                            }}
-                                                        >
-                                                            {transaction.type === 'income' ? '+' : ''}{formatCurrency(transaction.amount)}
-                                                        </Typography>
-                                                    </Box>
-                                                }
-                                            />
-                                        </ListItem>
-                                        <Divider variant="inset" component="li" />
-                                    </React.Fragment>
+                            <List sx={{ width: '100%', height: '40vh', overflowY: 'auto' }}>
+                                {statementDataObj?.transactions?.map((transaction) => (
+                                    <TransactionCard transaction={transaction}/>
                                 ))}
                             </List>
                         </CardContent>

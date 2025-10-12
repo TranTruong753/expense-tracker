@@ -19,8 +19,9 @@ import { popularBanks } from '../../utils';
 import type { BankInfo, FormErrors } from '../../types';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useNotifications } from '@toolpad/core';
-import { handleRegister } from '../../services/authService';
+import { apiRegister } from '../../services/authService';
 import type { AxiosError } from 'axios';
+
 
 
 function RegisterPage() {
@@ -46,7 +47,6 @@ function RegisterPage() {
             [name]: value
         }));
 
-        // Clear error khi user bắt đầu nhập
         if (errors[name as keyof FormErrors]) {
             setErrors(prev => ({
                 ...prev,
@@ -62,7 +62,6 @@ function RegisterPage() {
             [name]: value
         }));
 
-        // Clear error khi user bắt đầu chọn
         if (errors[name as keyof FormErrors]) {
             setErrors(prev => ({
                 ...prev,
@@ -82,11 +81,9 @@ function RegisterPage() {
         if (!bankInfo.accountNumber.trim()) {
             newErrors.accountNumber = 'Vui lòng nhập số tài khoản';
         } else if (!/^\d+$/.test(bankInfo.accountNumber)) {
-            // Regex: chỉ cho phép ký tự số
             newErrors.accountNumber = 'Số tài khoản chỉ được chứa chữ số';
         }
         else if (bankInfo.accountNumber.length < 8 || bankInfo.accountNumber.length > 14) {
-            // Kiểm tra độ dài hợp lệ (tùy từng ngân hàng)
             newErrors.accountNumber = 'Số tài khoản phải từ 8–14 chữ số';
         }
         if (!bankInfo.initialBalance) {
@@ -110,25 +107,32 @@ function RegisterPage() {
                 severity: "error",
             });
 
+            const initialBalanceConvertFloat = parseFloat(bankInfo.initialBalance)
+
             const formSubmit = {
                 ...bankInfo,
                 userId: id,
-                initialBalance: parseFloat(bankInfo.initialBalance)
+                initialBalance: initialBalanceConvertFloat,
+                balance: initialBalanceConvertFloat,
             }
             console.log('Bank info submitted:', formSubmit);
 
             try {
 
-                const { redirectTo } = await handleRegister(formSubmit)
-
+                const { redirectTo } = await apiRegister(formSubmit)
+                setBankInfo({
+                    bankName: '',
+                    initialBalance: '',
+                    accountNumber: ''
+                });
                 navigate(redirectTo)
             } catch (error) {
                 const err = error as AxiosError
-                if (err.response?.status === 404 || err.response?.status === 400) {
+                if (err.response?.status === 409) {
                     const newErrors: FormErrors = {};
-                    newErrors.accountNumber = 'số tài khoản không hợp lệ!';
+                    newErrors.accountNumber = 'số tài khoản đã tồn tại hoặc không hợp lệ!';
                     setErrors(newErrors);
-                    return notifications.show('số tài khoản không hợp lệ!', { severity: 'error' })
+                    return notifications.show('số tài khoản đã được sử dụng hoặc không hợp lệ!', { severity: 'error' })
                 }
 
                 return notifications.show('Có lỗi bên phía máy chủ! vui lòng thử lại sau', {
@@ -136,12 +140,7 @@ function RegisterPage() {
                 });
             }
 
-            // Reset form sau khi submit thành công
-            setBankInfo({
-                bankName: '',
-                initialBalance: '',
-                accountNumber: ''
-            });
+
         }
     };
 
