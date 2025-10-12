@@ -161,7 +161,7 @@ function MainLayout() {
             navigation={NAVIGATION}
             authentication={authentication}
             branding={{
-                title: "App quản lý chi tiêu",
+                title: "Web quản lý chi tiêu",
                 logo: <img
                     src='/logo/Logo.png'
                     alt="MyApp Logo"

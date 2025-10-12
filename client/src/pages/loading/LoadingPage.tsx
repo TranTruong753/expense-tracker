@@ -26,7 +26,7 @@ const LoadingPage = () => {
       
    
       <Typography variant="h6" component="div">
-        App Quản Lý Chi Tiêu
+        Web Quản Lý Chi Tiêu
       </Typography>
     </Box>
   );

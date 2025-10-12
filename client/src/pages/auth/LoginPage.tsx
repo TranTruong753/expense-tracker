@@ -106,7 +106,7 @@ function LoginPage() {
                                     color="#666"
                                     textAlign={'center'}
                                 >
-                                    App quản lý chi tiêu
+                                    Web quản lý chi tiêu
                                 </Typography>
                             </Stack>
 
