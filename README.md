@@ -5,6 +5,8 @@ This project helps users track income, expenses, and budgets with a clean UI and
 
 ---
 
+## 🔗 Link demo : [expense-tracker.truong-dev.site](http://expense-tracker.truong-dev.site/login)
+
 ## 🏗️ Tech Stack
 
 | Layer        | Technology |
@@ -13,7 +15,7 @@ This project helps users track income, expenses, and budgets with a clean UI and
 | Backend       | Node JS, Express JS, Mongoose, JWT Authentication |
 | Database      | MongoDB |
 | Containerization | Docker, Docker Compose |
-| Others        | Axios, ESLint, Prettier |
+| Others        | Axios, ESLint, Prettier, Docker, EC2 |
 
 ---
 
