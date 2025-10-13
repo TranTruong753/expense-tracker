@@ -1,4 +1,4 @@
-import BankAccount from '../models/bankAccount.js'
+import BankAccount from '../models/bankAccount.js';
 
 class bankAccountController {
 
@@ -28,7 +28,7 @@ class bankAccountController {
             return res.status(200).json({
                 success: true,
                 bank: newBank
-            })
+            });
         } catch (error) {
             next(error);
         }
@@ -62,4 +62,4 @@ class bankAccountController {
 
 }
 
-export default new bankAccountController()
+export default new bankAccountController();

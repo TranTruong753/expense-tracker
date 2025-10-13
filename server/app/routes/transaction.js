@@ -1,6 +1,6 @@
 import express from 'express';
 import transactionController from '../controllers/transactionController.js';
-import {verifyToken} from "../middleware/authMiddleware.js"
+import {verifyToken} from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 

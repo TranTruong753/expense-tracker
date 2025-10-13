@@ -5,4 +5,4 @@ export default {
     mongooseToObject(mongoose){
         return mongoose ? mongoose.toObject() : mongoose;
     },
-}
+};

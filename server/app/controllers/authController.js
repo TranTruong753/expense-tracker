@@ -1,5 +1,5 @@
-import User from '../models/user.js'
-import BankAccount from '../models/bankAccount.js'
+import User from '../models/user.js';
+import BankAccount from '../models/bankAccount.js';
 import jwt from "jsonwebtoken";
 import axios from "axios";
 
@@ -48,7 +48,7 @@ class authController {
             });
 
         } catch (error) {
-            next(error)
+            next(error);
         }
     }
 
@@ -133,7 +133,7 @@ class authController {
 
             if (decoded) return res.status(200).json({
                 success: true
-            })
+            });
 
         } catch (error) {
             next(error);
@@ -141,4 +141,4 @@ class authController {
     }
 }
 
-export default new authController()
+export default new authController();

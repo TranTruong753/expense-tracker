@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import initializeData from '../../utils/seed.js'
+import initializeData from '../../utils/seed.js';
 
 async function connect() {
     try {

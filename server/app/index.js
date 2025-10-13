@@ -1,16 +1,16 @@
 import express from 'express';
 import logger from 'morgan';
 import db from './config/db/index.js';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import route from './routes/index.js';
 import bodyParser from 'body-parser';
 import cors from "cors";
-import errorHandler from './middleware/errorMiddleware.js'
+import errorHandler from './middleware/errorMiddleware.js';
 
-dotenv.config()
+dotenv.config();
 db.connect();
 
-const app = express()
+const app = express();
 // set up port
 const port = process.env.PORT;
 

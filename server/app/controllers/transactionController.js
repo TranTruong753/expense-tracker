@@ -1,5 +1,5 @@
 import BankAccount from '../models/bankAccount.js';
-import Transaction from '../models/transaction.js'
+import Transaction from '../models/transaction.js';
 import jwt from "jsonwebtoken";
 import mongoose from 'mongoose';
 
@@ -247,9 +247,6 @@ class transactionController {
             ]);
             const totalInitialBalance = parseFloat(totalInitialBalanceAgg[0]?.totalInitial?.toString() || '0');
 
-
-            console.log("totalInitialBalance", totalInitialBalance)
-
             // Tổng thu TRƯỚC kỳ (trước fromDate)
             const incomeBeforeAgg = await Transaction.aggregate([
                 {
@@ -336,4 +333,4 @@ class transactionController {
 
 }
 
-export default new transactionController()
+export default new transactionController();

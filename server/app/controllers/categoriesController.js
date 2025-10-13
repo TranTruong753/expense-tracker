@@ -73,4 +73,4 @@ class categoriesController {
     }
 }
 
-export default new categoriesController()
+export default new categoriesController();
