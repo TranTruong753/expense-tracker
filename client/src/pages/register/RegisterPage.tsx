@@ -156,253 +156,258 @@ function RegisterPage() {
     };
 
     return (
-        <Container maxWidth='xl'
+        <Box
             sx={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                py: 4
-            }}>
-            <Card
-                variant="outlined"
+            }}
+        >
+            <Container maxWidth='xl'
                 sx={{
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(10px)',
-                    width: 450,
-                    maxWidth: '90vw',
-                    px: 4,
-                    py: 5,
-                    borderRadius: 3,
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                    border: '1px solid rgba(255,255,255,0.2)'
-                }}
-            >
-                <Stack
-                    direction={'column'}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    spacing={3}
-                    component="form"
-                    onSubmit={handleSubmit}
-                    noValidate
+                    minHeight: '100vh',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    py: 4
+                }}>
+                <Card
+                    variant="outlined"
+                    sx={{
+                        background: 'rgba(255, 255, 255, 0.95)',
+                        backdropFilter: 'blur(10px)',
+                        width: 450,
+                        maxWidth: '90vw',
+                        px: 4,
+                        py: 5,
+                        borderRadius: 3,
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                        border: '1px solid rgba(255,255,255,0.2)'
+                    }}
                 >
-                    {/* Logo/Icon Section */}
-                    <Box
-                        sx={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            mb: 2
-                        }}
+                    <Stack
+                        direction={'column'}
+                        alignItems={'center'}
+                        justifyContent={'center'}
+                        spacing={3}
+                        component="form"
+                        onSubmit={handleSubmit}
+                        noValidate
                     >
-                        <AccountBalanceIcon fontSize="large" sx={{ color: 'white' }} />
-                    </Box>
-
-                    {/* Title Section */}
-                    <Stack direction={'column'} alignItems={'center'} spacing={1}>
-                        <Typography
-                            variant="h1"
-                            fontSize={'28px'}
-                            fontWeight={700}
-                            color="#333"
-                            textAlign={'center'}
+                        {/* Logo/Icon Section */}
+                        <Box
+                            sx={{
+                                width: 80,
+                                height: 80,
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mb: 2
+                            }}
                         >
-                            TÀI KHOẢN NGÂN HÀNG
-                        </Typography>
-                        <Typography
-                            variant="body1"
-                            fontSize={'14px'}
-                            color="#666"
-                            textAlign={'center'}
-                        >
-                            Thêm tài khoản ngân hàng đầu tiên của bạn
-                        </Typography>
-                    </Stack>
+                            <AccountBalanceIcon fontSize="large" sx={{ color: 'white' }} />
+                        </Box>
 
-                    {/* Divider */}
-                    <Box
-                        sx={{
-                            width: '100%',
-                            height: '1px',
-                            background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
-                            my: 1
-                        }}
-                    />
-
-                    {/* Form Section */}
-                    <Stack direction={'column'} spacing={1} width={'100%'}>
-
-                        {/* Tên ngân hàng với dropdown */}
-                        <Box>
+                        {/* Title Section */}
+                        <Stack direction={'column'} alignItems={'center'} spacing={1}>
                             <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mb: 1, fontWeight: 500 }}
+                                variant="h1"
+                                fontSize={'28px'}
+                                fontWeight={700}
+                                color="#333"
+                                textAlign={'center'}
                             >
-                                Tên ngân hàng:
+                                TÀI KHOẢN NGÂN HÀNG
                             </Typography>
-                            <FormControl fullWidth>
-                                <Select
-                                    name="bankName"
+                            <Typography
+                                variant="body1"
+                                fontSize={'14px'}
+                                color="#666"
+                                textAlign={'center'}
+                            >
+                                Thêm tài khoản ngân hàng đầu tiên của bạn
+                            </Typography>
+                        </Stack>
+
+                        {/* Divider */}
+                        <Box
+                            sx={{
+                                width: '100%',
+                                height: '1px',
+                                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                                my: 1
+                            }}
+                        />
+
+                        {/* Form Section */}
+                        <Stack direction={'column'} spacing={1} width={'100%'}>
+
+                            {/* Tên ngân hàng với dropdown */}
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ mb: 1, fontWeight: 500 }}
+                                >
+                                    Tên ngân hàng:
+                                </Typography>
+                                <FormControl fullWidth>
+                                    <Select
+                                        name="bankName"
+                                        size='small'
+                                        value={bankInfo.bankName}
+                                        onChange={handleSelectChange}
+                                        displayEmpty
+                                        error={hasError('bankName')}
+                                        sx={{
+                                            borderRadius: 2,
+                                            backgroundColor: '#fafafa',
+                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#667eea',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: '#667eea',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="">
+                                            <em>Chọn ngân hàng</em>
+                                        </MenuItem>
+                                        {popularBanks.map((bank) => (
+                                            <MenuItem key={bank} value={bank}>
+                                                {bank}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                {hasError('bankName') ? (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                                        {errors.bankName}
+                                    </Typography>
+                                ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
+                            </Box>
+
+                            {/* Số tài khoản */}
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ mb: 1, fontWeight: 500 }}
+                                >
+                                    Số tài khoản:
+                                </Typography>
+                                <TextField
+                                    fullWidth
                                     size='small'
-                                    value={bankInfo.bankName}
-                                    onChange={handleSelectChange}
-                                    displayEmpty
-                                    error={hasError('bankName')}
+                                    variant="outlined"
+                                    name="accountNumber"
+                                    value={bankInfo.accountNumber}
+                                    onChange={handleInputChange}
+                                    placeholder="xxxx"
+                                    error={hasError('accountNumber')}
+
                                     sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            backgroundColor: '#fafafa',
+                                            '&:hover fieldset': {
+                                                borderColor: '#667eea',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#667eea',
+                                            },
+                                        }
+                                    }}
+                                />
+                                {hasError('accountNumber') ? (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                                        {errors.accountNumber}
+                                    </Typography>
+                                ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
+                            </Box>
+
+                            {/* Số dư ban đầu */}
+                            <Box>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ mb: 1, fontWeight: 500 }}
+                                >
+                                    Số dư ban đầu:
+                                </Typography>
+                                <TextField
+                                    fullWidth
+                                    size='small'
+                                    variant="outlined"
+                                    name="initialBalance"
+                                    // value={bankInfo.initialBalance}
+                                    value={formatNumberWithDots(bankInfo.initialBalance)}
+                                    onChange={handleInputChange}
+                                    type="text"
+                                    placeholder="0"
+                                    error={hasError('initialBalance')}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Typography variant="body2" color="text.secondary">
+                                                    ₫
+                                                </Typography>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2,
+                                            backgroundColor: '#fafafa',
+                                            '&:hover fieldset': {
+                                                borderColor: '#667eea',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#667eea',
+                                            },
+                                        }
+                                    }}
+                                />
+                                {hasError('initialBalance') ? (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                                        {errors.initialBalance}
+                                    </Typography>
+                                ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
+                            </Box>
+
+                            {/* Nút thêm tài khoản */}
+                            <Box>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    fullWidth
+                                    size="large"
+                                    startIcon={<AddCardIcon />}
+                                    sx={{
+                                        py: 1.5,
                                         borderRadius: 2,
-                                        backgroundColor: '#fafafa',
-                                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#667eea',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        fontWeight: 'bold',
+                                        fontSize: '16px',
+                                        textTransform: 'none',
+                                        boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                                            boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+                                            transform: 'translateY(-1px)'
                                         },
-                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: '#667eea',
-                                        },
+                                        transition: 'all 0.3s ease',
+                                        mt: 1
                                     }}
                                 >
-                                    <MenuItem value="">
-                                        <em>Chọn ngân hàng</em>
-                                    </MenuItem>
-                                    {popularBanks.map((bank) => (
-                                        <MenuItem key={bank} value={bank}>
-                                            {bank}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            {hasError('bankName') ? (
-                                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                                    {errors.bankName}
-                                </Typography>
-                            ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
-                        </Box>
-
-                        {/* Số tài khoản */}
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mb: 1, fontWeight: 500 }}
-                            >
-                                Số tài khoản:
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                size='small'
-                                variant="outlined"
-                                name="accountNumber"
-                                value={bankInfo.accountNumber}
-                                onChange={handleInputChange}
-                                placeholder="xxxx"
-                                error={hasError('accountNumber')}
-
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 2,
-                                        backgroundColor: '#fafafa',
-                                        '&:hover fieldset': {
-                                            borderColor: '#667eea',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#667eea',
-                                        },
-                                    }
-                                }}
-                            />
-                            {hasError('accountNumber') ? (
-                                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                                    {errors.accountNumber}
-                                </Typography>
-                            ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
-                        </Box>
-
-                        {/* Số dư ban đầu */}
-                        <Box>
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{ mb: 1, fontWeight: 500 }}
-                            >
-                                Số dư ban đầu:
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                size='small'
-                                variant="outlined"
-                                name="initialBalance"
-                                // value={bankInfo.initialBalance}
-                                value={formatNumberWithDots(bankInfo.initialBalance)}
-                                onChange={handleInputChange}
-                                type="text"
-                                placeholder="0"
-                                error={hasError('initialBalance')}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <Typography variant="body2" color="text.secondary">
-                                                ₫
-                                            </Typography>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 2,
-                                        backgroundColor: '#fafafa',
-                                        '&:hover fieldset': {
-                                            borderColor: '#667eea',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#667eea',
-                                        },
-                                    }
-                                }}
-                            />
-                            {hasError('initialBalance') ? (
-                                <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
-                                    {errors.initialBalance}
-                                </Typography>
-                            ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
-                        </Box>
-
-                        {/* Nút thêm tài khoản */}
-                        <Box>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                fullWidth
-                                size="large"
-                                startIcon={<AddCardIcon />}
-                                sx={{
-                                    py: 1.5,
-                                    borderRadius: 2,
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    fontWeight: 'bold',
-                                    fontSize: '16px',
-                                    textTransform: 'none',
-                                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
-                                    '&:hover': {
-                                        background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                                        boxShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
-                                        transform: 'translateY(-1px)'
-                                    },
-                                    transition: 'all 0.3s ease',
-                                    mt: 1
-                                }}
-                            >
-                                THÊM TÀI KHOẢN
-                            </Button>
-                        </Box>
+                                    THÊM TÀI KHOẢN
+                                </Button>
+                            </Box>
+                        </Stack>
                     </Stack>
-                </Stack>
-            </Card>
-        </Container>
+                </Card>
+            </Container>
+        </Box>
     );
 }
 
