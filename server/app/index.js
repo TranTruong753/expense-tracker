@@ -15,8 +15,8 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(cors({
-  origin: "http://localhost:5173",   
-  credentials: true,                
+  origin: ["http://localhost:5173", "http://expense-tracker.truong-dev.site",],
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
