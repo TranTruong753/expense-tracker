@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import AddCardIcon from '@mui/icons-material/AddCard';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import { popularBanks } from '../../utils';
+import { extractNumbers, formatNumberWithDots, popularBanks } from '../../utils';
 import type { BankInfo, FormErrors } from '../../types';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useNotifications } from '@toolpad/core';
@@ -42,10 +42,19 @@ function RegisterPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         const { name, value } = e.target;
-        setBankInfo(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        if (name === "initialBalance") {
+            const numericValue = extractNumbers(value);
+            setBankInfo(prev => ({
+                ...prev,
+                [name]: numericValue
+            }));
+        } else {
+            setBankInfo(prev => ({
+                ...prev,
+                [name]: value
+            }));
+
+        }
 
         if (errors[name as keyof FormErrors]) {
             setErrors(prev => ({
@@ -115,17 +124,16 @@ function RegisterPage() {
                 initialBalance: initialBalanceConvertFloat,
                 balance: initialBalanceConvertFloat,
             }
-            console.log('Bank info submitted:', formSubmit);
-
             try {
 
                 const { redirectTo } = await apiRegister(formSubmit)
+                navigate(redirectTo)
                 setBankInfo({
                     bankName: '',
                     initialBalance: '',
                     accountNumber: ''
                 });
-                navigate(redirectTo)
+
             } catch (error) {
                 const err = error as AxiosError
                 if (err.response?.status === 409) {
@@ -134,7 +142,6 @@ function RegisterPage() {
                     setErrors(newErrors);
                     return notifications.show('số tài khoản đã được sử dụng hoặc không hợp lệ!', { severity: 'error' })
                 }
-
                 return notifications.show('Có lỗi bên phía máy chủ! vui lòng thử lại sau', {
                     severity: "error",
                 });
@@ -329,9 +336,10 @@ function RegisterPage() {
                                 size='small'
                                 variant="outlined"
                                 name="initialBalance"
-                                value={bankInfo.initialBalance}
+                                // value={bankInfo.initialBalance}
+                                value={formatNumberWithDots(bankInfo.initialBalance)}
                                 onChange={handleInputChange}
-                                type="number"
+                                type="text"
                                 placeholder="0"
                                 error={hasError('initialBalance')}
                                 InputProps={{

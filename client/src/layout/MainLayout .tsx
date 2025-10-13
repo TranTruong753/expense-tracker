@@ -86,17 +86,23 @@ function MainLayout() {
                 setListTransaction(resTransaction.data)
             }
 
-        } finally {
+        } catch {
+            clearToken()
+            if (location.pathname !== '/login') {
+                navigate('/login');
+            }
+        }
+        finally {
             setLoadingPage(false)
         }
     }
 
     useEffect(() => {
-        setLoadingPage(true)
         const token = getAccessToken();
-        if (!token) {
+        if (!token && location.pathname !== '/login') {
             navigate('/login');
         }
+        setLoadingPage(true)
         fetchProfile()
     }, [])
 
@@ -131,7 +137,9 @@ function MainLayout() {
             signOut: () => {
                 setSession(null);
                 clearToken()
-                navigate('/login')
+                if (location.pathname !== '/login') {
+                    navigate('/login');
+                }
             },
         };
     }, []);
@@ -154,7 +162,6 @@ function MainLayout() {
 
     return (
         <AppProvider
-
             theme={theme}
             router={router as Router | undefined}
             session={session}

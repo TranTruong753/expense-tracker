@@ -19,7 +19,7 @@ import type { ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../
 import { apiCreateTransaction } from '../../services/transactionService';
 import { useNotifications } from '@toolpad/core';
 import dayjs from 'dayjs';
-import { addItemTransaction, changeBalanceBank, styleModal } from '../../utils';
+import { addItemTransaction, changeBalanceBank, extractNumbers, formatNumberWithDots, styleModal } from '../../utils';
 
 const IncomeModal = ({ open, onClose }: ModalProps) => {
 
@@ -38,10 +38,18 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
     const [errors, setErrors] = useState<ExpenseOrIncomeFormErrors>({});
 
     const handleChange = (field: keyof TransactionInfo) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: unknown } }) => {
-        setFormData({
-            ...formData,
-            [field]: event.target.value
-        });
+        if (field === 'amount') {
+            const numericValue = extractNumbers(event.target.value as string);
+            setFormData({
+                ...formData,
+                amount: numericValue
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [field]: event.target.value
+            });
+        }
         if (errors[field]) {
             setErrors({
                 ...errors,
@@ -81,11 +89,9 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
                 userId: user.id,
                 transactionDate: dayjs().toDate()
             }
-            console.log('Dữ liệu thu nhập:', customFormData);
 
             try {
                 const res = await apiCreateTransaction(customFormData)
-                console.log(res)
                 if (res.success) {
                     changeBalanceBank(res.bank.id, res.bank, listBank, setListBank)
                     addItemTransaction(res.data, listTransaction, setListTransaction)
@@ -158,8 +164,8 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
                         <TextField
                             size='small'
                             label="Số Tiền"
-                            type="number"
-                            value={formData.amount}
+                            type="text"
+                            value={formatNumberWithDots(formData.amount)}
                             onChange={handleChange('amount')}
                             error={!!errors.amount}
                             helperText={errors.amount ? errors.amount : ' '}

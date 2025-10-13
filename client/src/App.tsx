@@ -8,6 +8,7 @@ import StatementPage from './pages/statement/StatementPage'
 import TransactionPage from './pages/transaction/TransactionPage'
 import RegisterPage from './pages/register/RegisterPage'
 import NotFoundPage from './pages/notFound/NotFoundPage '
+import LoginLayout from './layout/LoginLayout'
 
 
 function App() {
@@ -28,10 +29,10 @@ function App() {
           <TransactionPage />
         } />
       </Route>
-      <Route path="/login" element={
-        <LoginPage />
-      }></Route>
-      <Route path="/register-bank" element={<RegisterPage />}></Route>
+      <Route element={<LoginLayout/>}>
+        <Route path="/login" element={<LoginPage/>}></Route>
+        <Route path="/register-bank" element={<RegisterPage />}></Route>
+      </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
 

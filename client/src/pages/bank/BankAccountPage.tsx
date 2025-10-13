@@ -14,7 +14,6 @@ import BankCard from '../../components/bank/BankAccountCard';
 import React from 'react';
 import CreateBankAccount from '../../components/modal/CreateBankAccount';
 
-
 const BankAccountPage = () => {
     const { listBank } = useAuth();
 

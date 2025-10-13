@@ -183,11 +183,21 @@ const HomePage = () => {
 
                     <Card sx={{ minHeight: '40vh' }}>
                         <CardContent sx={{ py: 0 }}>
-                            <List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-                                {listTransaction?.map((transaction) => (
-                                   <Box key={transaction.id} > <TransactionCard transaction={transaction} /></Box>
-                                ))}
-                            </List>
+
+                            {(listTransaction && listTransaction.length > 0) ?
+                                (<List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                                    {listTransaction.map((transaction) => (
+                                        <Box key={transaction.id} > <TransactionCard transaction={transaction} /></Box>
+                                    ))}
+                                </List>) :
+                                <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} height={'30vh'}>
+                                    <Typography  component={'span'} fontSize={'18px'}>Bạn chưa có giao dịch nào</Typography>
+                                </Stack>
+                            
+                            }
+
+
+
                         </CardContent>
                     </Card>
 

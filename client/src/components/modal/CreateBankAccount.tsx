@@ -1,5 +1,5 @@
 import { Box, Button, FormControl, InputAdornment, MenuItem, Modal, Select, Stack, TextField, Typography, type SelectChangeEvent } from "@mui/material";
-import { addItemBalanceBank, popularBanks, styleModal } from "../../utils";
+import { addItemBalanceBank, extractNumbers, formatNumberWithDots, popularBanks, styleModal } from "../../utils";
 import React from "react";
 import type { BankInfo, FormErrors, ModalProps } from "../../types";
 import { useNotifications } from "@toolpad/core";
@@ -34,10 +34,18 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         const { name, value } = e.target;
-        setBankInfo(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        if (name === "initialBalance") {
+            const numericValue = extractNumbers(value);
+            setBankInfo(prev => ({
+                ...prev,
+                [name]: numericValue
+            }));
+        } else {
+            setBankInfo(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
 
         if (errors[name as keyof FormErrors]) {
             setErrors(prev => ({
@@ -72,10 +80,10 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
 
         if (!bankInfo.accountNumber.trim()) {
             newErrors.accountNumber = 'Vui lòng nhập số tài khoản';
-        } else if (!/^\d+$/.test(bankInfo.accountNumber)) {       
+        } else if (!/^\d+$/.test(bankInfo.accountNumber)) {
             newErrors.accountNumber = 'Số tài khoản chỉ được chứa chữ số';
         }
-        else if (bankInfo.accountNumber.length < 8 || bankInfo.accountNumber.length > 14) {         
+        else if (bankInfo.accountNumber.length < 8 || bankInfo.accountNumber.length > 14) {
             newErrors.accountNumber = 'Số tài khoản phải từ 8–14 chữ số';
         }
         if (!bankInfo.initialBalance) {
@@ -114,7 +122,7 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                     notifications.show('Thêm tài khoản ngân hành thành công!', {
                         severity: "success",
                     });
-                    addItemBalanceBank(res.bank,listBank,setListBank)
+                    addItemBalanceBank(res.bank, listBank, setListBank)
                     handleClose()
                 }
 
@@ -262,9 +270,9 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                                 label='Số dư ban đầu'
                                 variant="outlined"
                                 name="initialBalance"
-                                value={bankInfo.initialBalance}
+                                value={formatNumberWithDots(bankInfo.initialBalance)}
                                 onChange={handleInputChange}
-                                type="number"
+                                type="text"
                                 placeholder="0"
                                 error={hasError('initialBalance')}
                                 InputProps={{

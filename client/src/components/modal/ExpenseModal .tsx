@@ -20,9 +20,7 @@ import { apiCreateTransaction } from '../../services/transactionService';
 import { useNotifications } from '@toolpad/core';
 import type { AxiosError } from 'axios';
 import dayjs from 'dayjs';
-import { addItemTransaction, changeBalanceBank, formatCurrency, styleModal } from '../../utils';
-
-
+import { addItemTransaction, changeBalanceBank, extractNumbers, formatCurrency, formatNumberWithDots, styleModal } from '../../utils';
 
 const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
@@ -41,10 +39,20 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
     const [errors, setErrors] = useState<ExpenseOrIncomeFormErrors>({});
 
     const handleChange = (field: keyof TransactionInfo) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { value: unknown } }) => {
-        setFormData({
-            ...formData,
-            [field]: event.target.value
-        });
+        if (field === 'amount') {
+            const numericValue = extractNumbers(event.target.value as string);
+            setFormData({
+                ...formData,
+                amount: numericValue
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [field]: event.target.value
+            });
+        }
+
+
         if (errors[field]) {
             setErrors({
                 ...errors,
@@ -84,11 +92,9 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                 userId: user.id,
                 transactionDate: dayjs().toDate()
             }
-            console.log('Dữ liệu chi tiêu:', customFormData);
 
             try {
-                const res = await apiCreateTransaction(customFormData)
-                console.log(res)
+                const res = await apiCreateTransaction(customFormData)    
                 if (res.success) {
                     changeBalanceBank(res.bank.id, res.bank, listBank, setListBank)
                     addItemTransaction(res.data, listTransaction, setListTransaction)
@@ -170,8 +176,9 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                         <TextField
                             size='small'
                             label="Số Tiền"
-                            type="number"
-                            value={formData.amount}
+                            type="text"
+                            // value={formData.amount}
+                            value={formatNumberWithDots(formData.amount)}
                             onChange={handleChange('amount')}
                             error={!!errors.amount}
                             helperText={errors.amount ? errors.amount : ' '}

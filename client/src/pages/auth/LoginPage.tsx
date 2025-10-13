@@ -5,7 +5,7 @@ import { apiGoogleLogin } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@toolpad/core";
 import React from "react";
-import { getAccessToken } from "../../services/tokenService";
+import { getAccessToken, setAccessToken } from "../../services/tokenService";
 
 function LoginPage() {
 
@@ -21,12 +21,11 @@ function LoginPage() {
         try {
             const { redirectTo, token } = await apiGoogleLogin(idToken)
 
-            localStorage.setItem("access_token", token);
+            if(token) setAccessToken(token)
 
             navigate(redirectTo)
-
-        } catch {
-            notifications.show('Lỗi đăng nhập!', {
+        } catch  {
+            notifications.show('Lỗi máy chủ! vui lòng thử lại sau', {
                 severity: "error",
             });
         }
@@ -34,8 +33,7 @@ function LoginPage() {
 
     React.useEffect(() => {
         const token = getAccessToken();
-        if (!token) navigate('/login');
-        else  navigate('/');
+        if (token) navigate('/');
     }, [])
 
 

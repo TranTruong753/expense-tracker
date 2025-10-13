@@ -41,7 +41,6 @@ export const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN');
 };
 
-
 export const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -58,7 +57,6 @@ export const changeBalanceBank = (id: string, newBank: BankAccount, listBank: Ba
     const newList = [...listBank];
     newList.splice(index, 1, newBank);
 
-    console.log("newList", newList);
     setListBank(newList);
 };
 
@@ -75,3 +73,16 @@ export const addItemTransaction = (newTransaction: TransactionStatement, listTra
     newList.unshift(newTransaction);
     setListTransaction(newList);
 }
+
+// Loại bỏ tất cả ký tự không phải số
+export const extractNumbers = (value: string): string => {
+    return value.replace(/\D/g, '');
+};
+
+// chỉ dùng để hiển thị
+export const formatNumberWithDots = (value: string): string => {
+    if (!value) return '';
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+

@@ -17,7 +17,7 @@ function TransactionPage() {
                     </Typography>
                 </Stack>
             </Stack>
-            <Card sx={{height: '80vh'}}>
+            <Card sx={{ height: '75vh' }}>
                 <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Receipt sx={{ mr: 1, color: 'primary.main' }} />
@@ -26,11 +26,16 @@ function TransactionPage() {
                         </Typography>
                     </Box>
 
-                    <List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-                        {listTransaction?.map((transaction) => (
-                            <TransactionCard transaction={transaction} />
-                        ))}
-                    </List>
+                    {(listTransaction && listTransaction.length > 0) ?
+                        (<List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                            {listTransaction?.map((transaction) => (
+                                <TransactionCard transaction={transaction} />
+                            ))}
+                        </List>) :
+                        (<Stack direction={'row'} justifyContent={'center'} alignItems={'center'} height={'30vh'}>
+                            <Typography component={'span'} fontSize={'18px'}>Bạn chưa có giao dịch nào</Typography>
+                        </Stack>)
+                    }
                 </CardContent>
             </Card>
         </Container>

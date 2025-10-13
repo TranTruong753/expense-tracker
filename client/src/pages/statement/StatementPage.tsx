@@ -38,15 +38,68 @@ const StatementPage = () => {
 
     const notifications = useNotifications()
 
+    const [startError, setStartError] = React.useState('');
+    const [endError, setEndError] = React.useState('');
+
+    const handleStartDateChange = (newValue: Dayjs | null) => {
+        setStartDate(newValue);
+
+        if (newValue && newValue.isAfter(dayjs(), 'day')) {
+            setStartError('Ngày bắt đầu không được lớn hơn hôm nay');
+        } else {
+            setStartError('');
+            // kiểm tra lại endDate nếu đã chọn
+            if (endDate && newValue && endDate.isBefore(newValue, 'day')) {
+                setEndError('Ngày kết thúc không được nhỏ hơn ngày bắt đầu');
+            } else {
+                setEndError('');
+            }
+        }
+    };
+
+    const handleEndDateChange = (newValue: Dayjs | null) => {
+        setEndDate(newValue);
+
+        if (newValue) {
+            if (newValue.isAfter(dayjs(), 'day')) {
+                setEndError('Ngày kết thúc không được lớn hơn hôm nay');
+            } else if (startDate && newValue.isBefore(startDate, 'day')) {
+                setEndError('Ngày kết thúc không được nhỏ hơn ngày bắt đầu');
+            }
+        }
+        else {
+            setEndError('');
+        }
+    };
+
+
     const handleReset = () => {
         setStatementDataObj({})
+        setEndDate(null)
+        setStartDate(null)
+        setEndError('')
+        setStartError('')
+    }
+
+    const isValidate = () => {
+        if (!startDate || !endDate) {
+            notifications.show('Bạn chưa nhập ngày bắt đầu và ngày kết thúc!', {
+                severity: 'error'
+            })
+            return false
+        }
+        else if (startError || endError) return false
+        return true
     }
 
     const handleSearch = async () => {
-        const fromDate = dayjs(startDate).format('YYYY-MM-DD');
-        const toDate = dayjs(endDate).format('YYYY-MM-DD');
+        if (!isValidate()) return
 
         try {
+
+            const fromDate = dayjs(startDate).format('YYYY-MM-DD');
+            const toDate = dayjs(endDate).format('YYYY-MM-DD');
+
             const [statementRes, transactionRes] = await Promise.all([
                 apiGetStatement({ fromDate, toDate }),
                 apiGetListTransactionFromDayToDay({ fromDate, toDate }),
@@ -58,7 +111,7 @@ const StatementPage = () => {
             })
 
         } catch {
-            notifications.show('Lỗi máy chủ ! vui lòng thử lại sau',{
+            notifications.show('Lỗi máy chủ ! vui lòng thử lại sau', {
                 severity: 'error'
             })
         }
@@ -85,20 +138,23 @@ const StatementPage = () => {
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
-                    <Stack direction={'row'} justifyContent={'start'} alignItems={'center'} spacing={3}>
+                    <Stack direction={'row'} justifyContent={'start'} alignItems={'start'} spacing={3}>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <Stack direction="row" spacing={3} justifyContent={'space-between'}>
+                            <Stack direction="row" spacing={3} justifyContent={'space-between'} >
                                 <DatePicker
                                     label="Từ ngày"
                                     value={startDate}
-                                    onChange={(newValue) => setStartDate(newValue)}
+                                    onChange={handleStartDateChange}
                                     maxDate={dayjs()}
                                     format='DD/MM/YYYY'
                                     slotProps={{
                                         textField: {
                                             size: 'small',
                                             fullWidth: true,
-                                            required: true,                
+                                            required: true,
+                                            error: !!startError,
+                                            helperText: startError ? startError : ' ',
+                                            sx: { width: 300 },
                                         }
                                     }}
 
@@ -107,14 +163,17 @@ const StatementPage = () => {
                                     label="Đến ngày"
                                     value={endDate}
                                     minDate={startDate ? startDate : undefined} // không cho chọn nhỏ hơn ngày bắt đầu
-                                    onChange={(newValue) => setEndDate(newValue)}
+                                    onChange={handleEndDateChange}
                                     maxDate={dayjs()}
                                     format='DD/MM/YYYY'
                                     slotProps={{
                                         textField: {
                                             size: 'small',
                                             fullWidth: true,
-                                            required: true,                        
+                                            required: true,
+                                            error: !!endError,
+                                            helperText: endError ? endError : ' ',
+                                            sx: { width: 300 },
                                         }
                                     }}
                                 />
@@ -122,7 +181,7 @@ const StatementPage = () => {
                         </LocalizationProvider>
 
 
-                     <Stack direction={'row'} spacing={1}>
+                        <Stack direction={'row'} spacing={1}>
                             <Button
                                 variant="contained"
                                 startIcon={<Search />}
@@ -135,7 +194,7 @@ const StatementPage = () => {
                             >
                                 Tìm kiếm
                             </Button>
-    
+
                             <Button
                                 variant="contained"
                                 startIcon={<Delete />}
@@ -149,7 +208,7 @@ const StatementPage = () => {
                             >
                                 Xóa dữ liệu
                             </Button>
-                     </Stack>
+                        </Stack>
 
                     </Stack>
 
@@ -228,11 +287,16 @@ const StatementPage = () => {
                                 </Typography>
                             </Box>
 
-                            <List sx={{ width: '100%', height: '40vh', overflowY: 'auto' }}>
-                                {statementDataObj?.transactions?.map((transaction) => (
-                                    <TransactionCard transaction={transaction}/>
-                                ))}
-                            </List>
+                            {(statementDataObj?.transactions && statementDataObj.transactions?.length > 0) ?
+                                (<List sx={{ width: '100%', height: '40vh', overflowY: 'auto' }}>
+                                    {statementDataObj?.transactions?.map((transaction) => (
+                                        <TransactionCard transaction={transaction} />
+                                    ))}
+                                </List>) :
+                                <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} height={'40vh'} >
+                                    <Typography component={'span'} fontSize={'18px'}>Bạn chưa có giao dịch nào</Typography>
+                                </Stack>
+                            }
                         </CardContent>
                     </Card>
                 </Grid>

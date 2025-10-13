@@ -1,5 +1,5 @@
 import React from "react";
-import type { AuthProviderProps, BankAccount, Category, ProfileResponse, Transaction } from "../types";
+import type { AuthProviderProps, BankAccount, Category, ProfileResponse, TransactionStatement } from "../types";
 import { AuthContext } from "./authContext";
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -10,7 +10,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const [listCategories, setListCategories] = React.useState<Category[] | null>(null);
 
-    const [listTransaction, setListTransaction] = React.useState<Transaction[] | null>(null)
+    const [listTransaction, setListTransaction] = React.useState<TransactionStatement[] | null>(null)
 
     const [loadingPage, setLoadingPage] = React.useState<boolean>(true)
 
