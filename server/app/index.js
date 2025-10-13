@@ -12,7 +12,7 @@ db.connect();
 
 const app = express()
 // set up port
-const port = 5002;
+const port = 5000;
 
 app.use(cors({
   origin: "http://localhost:5173",   

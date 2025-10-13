@@ -5,7 +5,10 @@
   "main": "app/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --inspect app/index.js"
+    "start": "nodemon --inspect app/index.js",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -30,7 +33,9 @@
     "mongoose": "^8.19.1"
   },
   "devDependencies": {
+    "eslint": "^9.37.0",
     "morgan": "^1.10.1",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
   }
 }

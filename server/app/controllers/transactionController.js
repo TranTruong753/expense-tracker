@@ -305,12 +305,12 @@ class transactionController {
             // Số dư đầu kỳ = Số dư ban đầu + (Tổng thu trước kỳ - Tổng chi trước kỳ)
             const startBalance = totalInitialBalance + totalIncomeBefore - totalExpenseBefore;
 
-            console.log("totalInitialBalance", totalInitialBalance, "totalIncomeBefore", totalIncomeBefore, "-totalExpenseBefore", totalExpenseBefore)
+            // console.log("totalInitialBalance", totalInitialBalance, "totalIncomeBefore", totalIncomeBefore, "-totalExpenseBefore", totalExpenseBefore)
 
             // Số dư cuối kỳ = Số dư đầu kỳ + (Tổng thu trong kỳ - Tổng chi trong kỳ)
             const endBalance = startBalance + totalIncome - totalExpense;
 
-            console.log("startBalance", startBalance, "totalIncome", totalIncome, "-totalExpense", totalExpense)
+            // console.log("startBalance", startBalance, "totalIncome", totalIncome, "-totalExpense", totalExpense)
 
             return res.json({
                 success: true,
