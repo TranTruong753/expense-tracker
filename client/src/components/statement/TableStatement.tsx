@@ -19,7 +19,7 @@ function TableStatement({ data }: { data?: Partial<StatementTableIf> }) {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
     // Handle pagination
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
     };
 
