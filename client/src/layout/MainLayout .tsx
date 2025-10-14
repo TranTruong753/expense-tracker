@@ -15,6 +15,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import HistoryIcon from '@mui/icons-material/History';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { useAuth } from "../hook/useAuth";
+import { useDeviceType } from "../hook/useDeviceType";
 
 
 const theme = createTheme({
@@ -57,6 +58,7 @@ function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
     const params = useParams();
+    const isMobile = useDeviceType('mobile')
 
     const fetchProfile = async () => {
         try {
@@ -170,7 +172,7 @@ function MainLayout() {
             branding={{
                 title: "Web quản lý chi tiêu",
                 logo: <img
-                    src='/logo/Logo.png'
+                    src={isMobile ? '/logo/Logo-small.png' :'/logo/Logo.png'}
                     alt="MyApp Logo"
                     style={{ width: '100%', height: '100&', 'objectFit': 'cover' }}
                 />
