@@ -370,8 +370,6 @@ class transactionController {
             ]);
             const totalIncomeBefore = parseFloat(incomeBeforeAgg[0]?.total || 0);
 
-            console.log("totalIncomeBefore", totalIncomeBefore)
-
             // ✅ Tổng chi trước kỳ
             const expenseBeforeAgg = await Transaction.aggregate([
                 {
@@ -385,8 +383,6 @@ class transactionController {
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]);
             const totalExpenseBefore = parseFloat(expenseBeforeAgg[0]?.total || 0);
-
-            console.log("totalExpenseBefore", totalExpenseBefore)
 
             // Tổng thu TRONG kỳ
             const incomeAgg = await Transaction.aggregate([
@@ -429,8 +425,7 @@ class transactionController {
                     path: 'categoryId',
                     select: 'name icon',
                 })
-                .sort({ transactionDate: -1 })
-            // .sort({ transactionDate: 1 });
+                .sort({ transactionDate: -1 });
 
             // ✅ Xử lý chi tiết từng dòng
             const statementRows = [];
