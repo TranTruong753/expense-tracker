@@ -171,8 +171,8 @@ function MainLayout() {
             authentication={authentication}
             branding={{
                 title: "Web quản lý chi tiêu",
-                logo: <img
-                    src={isMobile ? '/logo/Logo-small.png' :'/logo/Logo.png'}
+                logo: isMobile ? '' :<img
+                    src={'/logo/Logo.png'}
                     alt="MyApp Logo"
                     style={{ width: '100%', height: '100&', 'objectFit': 'cover' }}
                 />
