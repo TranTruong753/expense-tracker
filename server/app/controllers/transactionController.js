@@ -132,7 +132,7 @@ class transactionController {
                 type: t.type,
                 description: t.description,
                 transactionDate: t.transactionDate,
-                bank: t.bankId ? t.bankId.name : null,
+                bank: t.bankId ? t.bankId.bankName  : null,
                 category: t.categoryId ? t.categoryId.name : null,
                 categoryIcon: t.categoryId ? t.categoryId.icon : null,
             }));
@@ -199,7 +199,7 @@ class transactionController {
                 type: t.type,
                 description: t.description,
                 transactionDate: t.transactionDate,
-                bank: t.bankId ? t.bankId.name : null,
+                bank: t.bankId ? t.bankId.bankName : null,
                 category: t.categoryId ? t.categoryId.name : null,
                 categoryIcon: t.categoryId ? t.categoryId.icon : null,
             }));
@@ -330,6 +330,156 @@ class transactionController {
             next(err);
         }
     }
+
+    // GET /api/transaction/get-statement-by-bank?bankId=xxx&fromDate=2025-10-05&toDate=2025-10-07
+    async getStatementByBank(req, res, next) {
+        try {
+            const authHeader = req.headers.authorization;
+            if (!authHeader?.startsWith('Bearer ')) {
+                return res.status(401).json({ message: 'Unauthorized: Missing token' });
+            }
+
+            const token = authHeader.split(' ')[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const userObjectId = new mongoose.Types.ObjectId(decoded.id);
+
+            const { fromDate, toDate, bankId } = req.query;
+            const start = new Date(`${fromDate}T00:00:00.000Z`);
+            const end = new Date(`${toDate}T23:59:59.999Z`);
+
+            // ✅ Lấy thông tin bank
+            const bank = await BankAccount.findOne({
+                _id: bankId,
+                userId: userObjectId,
+            });
+            if (!bank) {
+                return res.status(404).json({ message: 'Bank not found' });
+            }
+
+            // ✅ Tổng thu trước kỳ
+            const incomeBeforeAgg = await Transaction.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        bankId: new mongoose.Types.ObjectId(bankId),
+                        type: 'INCOME',
+                        transactionDate: { $lt: start },
+                    },
+                },
+                { $group: { _id: null, total: { $sum: '$amount' } } },
+            ]);
+            const totalIncomeBefore = parseFloat(incomeBeforeAgg[0]?.total || 0);
+
+            console.log("totalIncomeBefore", totalIncomeBefore)
+
+            // ✅ Tổng chi trước kỳ
+            const expenseBeforeAgg = await Transaction.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        bankId: new mongoose.Types.ObjectId(bankId),
+                        type: 'EXPENSE',
+                        transactionDate: { $lt: start },
+                    },
+                },
+                { $group: { _id: null, total: { $sum: '$amount' } } },
+            ]);
+            const totalExpenseBefore = parseFloat(expenseBeforeAgg[0]?.total || 0);
+
+            console.log("totalExpenseBefore", totalExpenseBefore)
+
+            // Tổng thu TRONG kỳ
+            const incomeAgg = await Transaction.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        bankId: new mongoose.Types.ObjectId(bankId),
+                        type: 'INCOME',
+                        transactionDate: { $gte: start, $lte: end }
+                    }
+                },
+                { $group: { _id: null, total: { $sum: '$amount' } } },
+            ]);
+            const totalIncome = parseFloat(incomeAgg[0]?.total || 0);
+
+            // Tổng chi TRONG kỳ
+            const expenseAgg = await Transaction.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        bankId: new mongoose.Types.ObjectId(bankId),
+                        type: 'EXPENSE',
+                        transactionDate: { $gte: start, $lte: end }
+                    }
+                },
+                { $group: { _id: null, total: { $sum: '$amount' } } },
+            ]);
+            const totalExpense = parseFloat(expenseAgg[0]?.total || 0);
+
+            // ✅ Số dư đầu kỳ
+            let openingBalance = parseFloat(bank.initialBalance) + totalIncomeBefore - totalExpenseBefore;
+
+            // ✅ Lấy giao dịch trong kỳ
+            const transactions = await Transaction.find({
+                userId: userObjectId,
+                bankId,
+                transactionDate: { $gte: start, $lte: end },
+            })
+                .populate({
+                    path: 'categoryId',
+                    select: 'name icon',
+                })
+                .sort({ transactionDate: -1 })
+            // .sort({ transactionDate: 1 });
+
+            // ✅ Xử lý chi tiết từng dòng
+            const statementRows = [];
+            let runningBalance = openingBalance;
+
+            for (const t of transactions) {
+                const isIncome = t.type === 'INCOME';
+                const moneyIn = isIncome ? parseFloat(t.amount) : 0;
+                const moneyOut = !isIncome ? parseFloat(t.amount) : 0;
+
+                const row = {
+                    date: t.transactionDate.toISOString().split('T')[0],
+                    description: t.description || '',
+                    opening: runningBalance,
+                    moneyIn,
+                    moneyOut,
+                    closing: runningBalance + moneyIn - moneyOut,
+                    category: t.categoryId ? t.categoryId.name : null,
+                    categoryIcon: t.categoryId ? t.categoryId.icon : null,
+                };
+
+                // Cập nhật số dư cho dòng tiếp theo
+                runningBalance = row.closing;
+                statementRows.push(row);
+            }
+
+            // ✅ Tổng kết cuối kỳ
+            const closingBalance = runningBalance;
+
+            return res.json({
+                success: true,
+                data: {
+                    bank,
+                    fromDate,
+                    toDate,
+                    totalIncome,
+                    totalExpense,
+                    openingBalance,
+                    closingBalance,
+                    transactions: statementRows,
+                },
+            });
+
+        } catch (err) {
+            console.error(err);
+            next(err);
+        }
+    }
+
 
 }
 

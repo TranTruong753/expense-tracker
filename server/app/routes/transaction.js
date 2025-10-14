@@ -8,6 +8,7 @@ router.post('/create', verifyToken, transactionController.create);
 router.get('/get-statement', verifyToken, transactionController.getStatement);
 router.get('/get-list', verifyToken, transactionController.getListTransaction);
 router.get('/get-list-from-to', verifyToken, transactionController.getListTransactionFromDayToDay);
+router.get('/get-statement-by-bank', verifyToken, transactionController.getStatementByBank);
 
 
 export default router;
