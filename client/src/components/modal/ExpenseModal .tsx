@@ -21,10 +21,13 @@ import { useNotifications } from '@toolpad/core';
 import type { AxiosError } from 'axios';
 import dayjs from 'dayjs';
 import { addItemTransaction, changeBalanceBank, extractNumbers, formatCurrency, formatNumberWithDots, styleModal } from '../../utils';
+import { useDeviceType } from '../../hook/useDeviceType';
 
 const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
     const { listBank, listCategories, user, setListBank, listTransaction, setListTransaction } = useAuth()
+
+    const isMobile = useDeviceType('mobile')
 
     const notifications = useNotifications()
 
@@ -94,7 +97,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
             }
 
             try {
-                const res = await apiCreateTransaction(customFormData)    
+                const res = await apiCreateTransaction(customFormData)
                 if (res.success) {
                     changeBalanceBank(res.bank.id, res.bank, listBank, setListBank)
                     addItemTransaction(res.data, listTransaction, setListTransaction)
@@ -139,24 +142,28 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
             aria-labelledby="expense-modal-title"
             aria-describedby="expense-modal-description"
         >
-            <Box sx={styleModal}>
+            <Box sx={styleModal} width={isMobile ? '90vw' : 450}>
 
                 <Box
                     sx={{
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        padding: 3,
+                        padding: isMobile ? 1.5 : 3,
                         textAlign: 'center',
                         color: 'white'
                     }}
                 >
 
                     <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'}>
-                        <AccountBalanceWallet sx={{ fontSize: 40, mb: 1 }} />
+                        <AccountBalanceWallet sx={{
+                            fontSize: isMobile ? 30 : 40,
+                            mb: 1
+                        }} />
                         <Typography
                             id="expense-modal-title"
                             variant="h5"
                             component="h2"
                             fontWeight="bold"
+                            fontSize={isMobile ? '1.2rem' : '1.5rem'}
                         >
                             Thêm Chi Tiêu Mới
                         </Typography>
@@ -177,7 +184,6 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                             size='small'
                             label="Số Tiền"
                             type="text"
-                            // value={formData.amount}
                             value={formatNumberWithDots(formData.amount)}
                             onChange={handleChange('amount')}
                             error={!!errors.amount}
@@ -239,7 +245,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                             value={formData.description}
                             onChange={handleChange('description')}
                             multiline
-                            rows={3}
+                            rows={isMobile ? 2 : 3}
                             fullWidth
                             placeholder="Nhập mô tả cho khoản chi tiêu này..."
                             variant="outlined"
@@ -250,10 +256,10 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                             <Button
                                 variant="outlined"
                                 onClick={handleClose}
-                                size="large"
+                                size={isMobile ? "medium" : "large"}
                                 sx={{
                                     borderRadius: 2,
-                                    px: 3
+                                    px: isMobile ? 2 : 3
                                 }}
                             >
                                 Hủy
@@ -262,10 +268,10 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                size="large"
+                                size={isMobile ? "medium" : "large"}
                                 sx={{
                                     borderRadius: 2,
-                                    px: 3,
+                                    px: isMobile ? 2 : 3,
                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                     '&:hover': {
                                         background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',

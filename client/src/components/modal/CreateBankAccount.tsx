@@ -7,10 +7,13 @@ import type { AxiosError } from "axios";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { apiCreateBank } from "../../services/bankAccountService";
 import { useAuth } from "../../hook/useAuth";
+import { useDeviceType } from "../../hook/useDeviceType";
 
 function CreateBankAccount({ open, onClose }: ModalProps) {
 
     const { user, listBank, setListBank } = useAuth()
+
+    const isMobile = useDeviceType('mobile')
 
     const notifications = useNotifications()
 
@@ -158,29 +161,31 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
             aria-labelledby="expense-modal-title"
             aria-describedby="expense-modal-description"
         >
-            <Box sx={styleModal}>
+            <Box sx={styleModal} width={isMobile ? '90vw' : 450}>
                 <Box
                     sx={{
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        padding: 3,
+                        padding: isMobile ? 1.5 : 3,
                         textAlign: 'center',
                         color: 'white'
                     }}
                 >
 
                     <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'}>
-                        <AccountBalanceIcon sx={{ fontSize: 40, mb: 1 }} />
+                        <AccountBalanceIcon sx={{
+                            fontSize: isMobile ? 30 : 40,
+                            mb: 1
+                        }} />
                         <Typography
                             id="expense-modal-title"
                             variant="h5"
                             component="h2"
                             fontWeight="bold"
+                            fontSize={isMobile ? '1.2rem' : '1.5rem'}
                         >
                             Thêm ví mới
                         </Typography>
-
                     </Stack>
-
                 </Box>
 
                 {/* Form content */}
@@ -309,10 +314,10 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                             <Button
                                 variant="outlined"
                                 onClick={handleClose}
-                                size="large"
+                                size={isMobile ? "medium" : "large"}
                                 sx={{
                                     borderRadius: 2,
-                                    px: 3
+                                    px: isMobile ? 2 : 3,
                                 }}
                             >
                                 Hủy
@@ -321,10 +326,10 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                size="large"
+                                size={isMobile ? "medium" : "large"}
                                 sx={{
                                     borderRadius: 2,
-                                    px: 3,
+                                    px: isMobile ? 2 : 3,
                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                     '&:hover': {
                                         background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',

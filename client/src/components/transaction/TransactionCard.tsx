@@ -1,11 +1,14 @@
-import { Box, Chip, Divider, ListItem, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { Box, Chip, Divider, ListItem, ListItemIcon, ListItemText, Stack, Typography } from "@mui/material";
 import { formatCurrency, formatDate } from "../../utils";
 import React from "react";
 import type { TransactionStatement } from "../../types";
 import { TrendingDown, TrendingUp } from "@mui/icons-material";
 import dayjs from "dayjs";
+import { useDeviceType } from "../../hook/useDeviceType";
 
 function TransactionCard({ transaction }: { transaction: Partial<TransactionStatement> }) {
+    const isMobile = useDeviceType('mobile')
+
     return (
         <React.Fragment key={transaction.id}>
             <ListItem alignItems="flex-start" >
@@ -21,19 +24,23 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                     primary={
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <Box>
-                                <Typography variant="body1" fontWeight="600" fontSize={'18px'}>
+                                <Typography variant="body1" fontWeight="600" fontSize={isMobile ? '17px' : '18px'}>
                                     {transaction.category} {transaction.categoryIcon}
                                 </Typography>
-                                <Typography variant="body2" fontWeight="500" fontSize={'14px'} sx={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    whiteSpace: 'nowrap',
-                                    maxWidth: '30rem',
-                                }}>
-                                    Nội dung: {transaction.description}
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                                    <Typography>
+                                {!isMobile &&
+                                    (<Typography variant="body2" fontWeight="500" fontSize={isMobile ? '13px' : '14px'} sx={{
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        maxWidth: '30rem',
+                                    }}>
+                                        Nội dung: {transaction.description}
+                                    </Typography>)
+                                }
+                                <Stack direction={isMobile ? 'column' : 'row'} alignItems={isMobile ? 'start' : 'start'} spacing={1} sx={{ mt: 0.5 }}>
+                                    <Typography
+                                        fontSize={isMobile ? '0.9rem' : '1rem'}
+                                    >
                                         {formatDate(dayjs(transaction.transactionDate).format('YYYY-MM-DD HH:mm:ss'))}
                                     </Typography>
 
@@ -43,7 +50,7 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                                         variant="outlined"
                                         sx={{ height: 20, fontSize: '0.7rem' }}
                                     />
-                                </Box>
+                                </Stack>
                             </Box>
 
                             <Box>
@@ -54,6 +61,7 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                                     variant="h6"
                                     fontWeight="bold"
                                     color={transaction.type === 'INCOME' ? 'success.main' : 'error.main'}
+                                    fontSize={isMobile ? '1.2rem' : '1.25rem'}
                                     sx={{
                                         textAlign: 'right'
                                     }}

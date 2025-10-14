@@ -21,6 +21,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useNotifications } from '@toolpad/core';
 import { apiRegister } from '../../services/authService';
 import type { AxiosError } from 'axios';
+import { useDeviceType } from '../../hook/useDeviceType';
 
 
 
@@ -39,6 +40,7 @@ function RegisterPage() {
 
     const [errors, setErrors] = useState<FormErrors>({});
 
+    const isMobile = useDeviceType('mobile')
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
         const { name, value } = e.target;
@@ -146,8 +148,6 @@ function RegisterPage() {
                     severity: "error",
                 });
             }
-
-
         }
     };
 
@@ -176,8 +176,8 @@ function RegisterPage() {
                         backdropFilter: 'blur(10px)',
                         width: 450,
                         maxWidth: '90vw',
-                        px: 4,
-                        py: 5,
+                        px: isMobile ? 3 : 4,
+                        py: isMobile ? 3 : 4,
                         borderRadius: 3,
                         boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                         border: '1px solid rgba(255,255,255,0.2)'
@@ -187,7 +187,7 @@ function RegisterPage() {
                         direction={'column'}
                         alignItems={'center'}
                         justifyContent={'center'}
-                        spacing={3}
+                        spacing={isMobile ? 2 : 3}
                         component="form"
                         onSubmit={handleSubmit}
                         noValidate
@@ -195,8 +195,8 @@ function RegisterPage() {
                         {/* Logo/Icon Section */}
                         <Box
                             sx={{
-                                width: 80,
-                                height: 80,
+                                width: isMobile ? 60 : 80,
+                                height: isMobile ? 60 : 80,
                                 borderRadius: '50%',
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 display: 'flex',
@@ -205,14 +205,14 @@ function RegisterPage() {
                                 mb: 2
                             }}
                         >
-                            <AccountBalanceIcon fontSize="large" sx={{ color: 'white' }} />
+                            <AccountBalanceIcon fontSize={isMobile ? "medium" : "large"} sx={{ color: 'white' }} />
                         </Box>
 
                         {/* Title Section */}
-                        <Stack direction={'column'} alignItems={'center'} spacing={1}>
+                        <Stack direction={'column'} alignItems={'center'} spacing={isMobile ? 1.5 : 2}>
                             <Typography
                                 variant="h1"
-                                fontSize={'28px'}
+                                fontSize={isMobile ? '1.4rem' : '1.7rem'}
                                 fontWeight={700}
                                 color="#333"
                                 textAlign={'center'}
@@ -220,8 +220,8 @@ function RegisterPage() {
                                 TÀI KHOẢN NGÂN HÀNG
                             </Typography>
                             <Typography
-                                variant="body1"
-                                fontSize={'14px'}
+                                variant="h2"
+                                fontSize={isMobile ? '0.9rem' : '1rem'}
                                 color="#666"
                                 textAlign={'center'}
                             >
@@ -382,13 +382,13 @@ function RegisterPage() {
                                     variant="contained"
                                     fullWidth
                                     size="large"
-                                    startIcon={<AddCardIcon />}
+                                    startIcon={<AddCardIcon fontSize='large' />}
                                     sx={{
-                                        py: 1.5,
+                                        py: isMobile ? 1.2 : 1.5,
                                         borderRadius: 2,
                                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                         fontWeight: 'bold',
-                                        fontSize: '16px',
+                                        fontSize: isMobile ? '1rem' :'1.1rem',
                                         textTransform: 'none',
                                         boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
                                         '&:hover': {

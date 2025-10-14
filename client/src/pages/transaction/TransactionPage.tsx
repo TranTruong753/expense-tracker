@@ -3,16 +3,24 @@ import HistoryIcon from '@mui/icons-material/History';
 import { useAuth } from "../../hook/useAuth";
 import { Receipt } from "@mui/icons-material";
 import TransactionCard from "../../components/transaction/TransactionCard";
+import { useDeviceType } from "../../hook/useDeviceType";
 
 function TransactionPage() {
     const { listTransaction } = useAuth()
+
+    const isMobile = useDeviceType('mobile')
 
     return (
         <Container maxWidth="xl" sx={{ py: 3 }}>
             <Stack direction='row' alignItems={'center'} justifyContent={'space-between'} sx={{ mb: 2 }}>
                 <Stack direction='row' alignItems={'center'} >
                     <HistoryIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6" color="primary.main" fontWeight={600}>
+                    <Typography
+                        variant="h6"
+                        color="primary.main"
+                        fontWeight={600}
+                        fontSize={isMobile ? '1.2rem' : '1.25rem'}
+                    >
                         LỊCH SỬ GIAO DỊCH
                     </Typography>
                 </Stack>
@@ -21,7 +29,11 @@ function TransactionPage() {
                 <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Receipt sx={{ mr: 1, color: 'primary.main' }} />
-                        <Typography variant="h6" fontWeight="bold">
+                        <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            fontSize={isMobile ? '1rem' : '1.2rem'}
+                        >
                             CHI TIẾT GIAO DỊCH
                         </Typography>
                     </Box>

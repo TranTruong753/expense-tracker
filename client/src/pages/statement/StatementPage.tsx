@@ -29,6 +29,7 @@ import { apiGetListTransactionFromDayToDay, apiGetStatement } from '../../servic
 import { formatCurrency } from '../../utils';
 import TransactionCard from '../../components/transaction/TransactionCard';
 import { useNotifications } from '@toolpad/core';
+import { useDeviceType } from '../../hook/useDeviceType';
 
 
 const StatementPage = () => {
@@ -37,6 +38,10 @@ const StatementPage = () => {
     const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
 
     const notifications = useNotifications()
+
+    const isMobile = useDeviceType('mobile')
+
+    const isTablet = useDeviceType('tablet')
 
     const [startError, setStartError] = React.useState('');
     const [endError, setEndError] = React.useState('');
@@ -124,7 +129,12 @@ const StatementPage = () => {
             <Stack direction='column' alignItems={'start'} spacing={1} sx={{ mb: 2 }}>
                 <Stack direction='row' alignItems={'center'} >
                     <ReceiptLongIcon sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h6" color="primary.main" fontWeight={600}>
+                    <Typography
+                        variant="h6"
+                        color="primary.main"
+                        fontWeight={600}
+                        fontSize={isMobile ? '1.2rem' : '1.25rem'}
+                    >
                         SAO KÊ
                     </Typography>
 
@@ -138,14 +148,15 @@ const StatementPage = () => {
 
             <Card sx={{ mb: 3 }}>
                 <CardContent>
-                    <Stack direction={'row'} justifyContent={'start'} alignItems={'start'} spacing={3}>
+                    <Stack direction={(isMobile || isTablet) ? 'column' : 'row'} justifyContent={'start'} alignItems={isMobile ? 'center' : 'start'} spacing={(isMobile || isTablet) ? 2:3} >
+
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <Stack direction="row" spacing={3} justifyContent={'space-between'} >
+                            <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 3} justifyContent={'space-between'} >
                                 <DatePicker
                                     label="Từ ngày"
                                     value={startDate}
                                     onChange={handleStartDateChange}
-                                    maxDate={dayjs()}
+                                    maxDate={endDate ? endDate : dayjs()}
                                     format='DD/MM/YYYY'
                                     slotProps={{
                                         textField: {
@@ -154,7 +165,7 @@ const StatementPage = () => {
                                             required: true,
                                             error: !!startError,
                                             helperText: startError ? startError : ' ',
-                                            sx: { width: 300 },
+                                            sx: {  width: 280 },
                                         }
                                     }}
 
@@ -173,7 +184,7 @@ const StatementPage = () => {
                                             required: true,
                                             error: !!endError,
                                             helperText: endError ? endError : ' ',
-                                            sx: { width: 300 },
+                                            sx: {  width: 280 },
                                         }
                                     }}
                                 />
@@ -181,13 +192,15 @@ const StatementPage = () => {
                         </LocalizationProvider>
 
 
-                        <Stack direction={'row'} spacing={1}>
+                        <Stack direction={'row'} spacing={1} >
                             <Button
                                 variant="contained"
                                 startIcon={<Search />}
                                 onClick={handleSearch}
+
                                 sx={{
                                     py: 1.5,
+                                    // whiteSpace: 'nowrap',
                                     textTransform: 'none',
                                     height: '40px'
                                 }}
@@ -201,6 +214,7 @@ const StatementPage = () => {
                                 onClick={handleReset}
                                 sx={{
                                     py: 1.5,
+                                    // whiteSpace: 'nowrap',
                                     textTransform: 'none',
                                     height: '40px'
                                 }}
@@ -222,7 +236,11 @@ const StatementPage = () => {
                         <CardContent>
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                                 <TrendingUp sx={{ mr: 1, color: 'primary.main' }} />
-                                <Typography variant="h6" fontWeight="bold">
+                                <Typography
+                                    variant="h6"
+                                    fontWeight="bold"
+                                    fontSize={isMobile ? '1.2rem' : '1.25rem'}
+                                >
                                     TỔNG HỢP
                                 </Typography>
                             </Box>
@@ -232,7 +250,7 @@ const StatementPage = () => {
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                     Số dư đầu kỳ:
                                 </Typography>
-                                <Typography variant="h6" color="primary" fontWeight="bold" height={'20px'}>
+                                <Typography variant="h6" color="primary" fontWeight="bold" height={'20px'} fontSize={'1.5rem'}>
                                     {statementDataObj?.summary ? formatCurrency(Number(statementDataObj?.summary?.startBalance)) : ' '}
                                 </Typography>
                             </Box>
@@ -268,7 +286,7 @@ const StatementPage = () => {
                                 <Typography variant="body2" color="text.secondary" gutterBottom>
                                     Số dư cuối kỳ:
                                 </Typography>
-                                <Typography variant="h5" color="primary" fontWeight="bold">
+                                <Typography variant="h6" color="primary" fontWeight="bold" fontSize={'1.5rem'}>
                                     {statementDataObj?.summary ? ` ${formatCurrency(Number(statementDataObj?.summary?.endBalance))}` : ' '}
                                 </Typography>
                             </Box>

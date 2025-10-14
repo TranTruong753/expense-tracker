@@ -6,10 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@toolpad/core";
 import React from "react";
 import { getAccessToken, setAccessToken } from "../../services/tokenService";
+import { useDeviceType } from "../../hook/useDeviceType";
 
 function LoginPage() {
 
     const navigate = useNavigate();
+
+    const isMobile = useDeviceType('mobile')
 
     const notifications = useNotifications()
 
@@ -21,10 +24,10 @@ function LoginPage() {
         try {
             const { redirectTo, token } = await apiGoogleLogin(idToken)
 
-            if(token) setAccessToken(token)
+            if (token) setAccessToken(token)
 
             navigate(redirectTo)
-        } catch  {
+        } catch {
             notifications.show('Lỗi máy chủ! vui lòng thử lại sau', {
                 severity: "error",
             });
@@ -55,9 +58,9 @@ function LoginPage() {
                             background: 'rgba(255, 255, 255, 0.95)',
                             backdropFilter: 'blur(10px)',
                             width: 400,
-                            maxWidth: '90vw',
-                            px: 4,
-                            py: 5,
+                            maxWidth: isMobile ? '70vw' : '90vw',
+                            px: isMobile ? 3 : 4,
+                            py: isMobile ? 3 : 5,
                             borderRadius: 3,
                             boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                             border: '1px solid rgba(255,255,255,0.2)'
@@ -67,22 +70,22 @@ function LoginPage() {
                             direction={'column'}
                             alignItems={'center'}
                             justifyContent={'center'}
-                            spacing={3}
+                            spacing={isMobile ? 2 : 3}
                         >
                             {/* Logo/Icon Section */}
                             <Box
                                 sx={{
-                                    width: 80,
-                                    height: 80,
+                                    width: isMobile ? 60 : 80,
+                                    height: isMobile ? 60 : 80,
                                     borderRadius: '50%',
                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    mb: 2
+                                    mb: isMobile ? 1 : 2
                                 }}
                             >
-                                <AddCardIcon fontSize="large" sx={{ color: 'white' }} />
+                                <AddCardIcon fontSize={isMobile ? "medium" : "large"} sx={{ color: 'white' }} />
 
                             </Box>
 
@@ -90,7 +93,7 @@ function LoginPage() {
                             <Stack direction={'column'} alignItems={'center'} spacing={1}>
                                 <Typography
                                     variant="h1"
-                                    fontSize={'28px'}
+                                    fontSize={isMobile ? '1.4rem' : '1.8rem'}
                                     fontWeight={700}
                                     color="#333"
                                     textAlign={'center'}
@@ -98,8 +101,8 @@ function LoginPage() {
                                     Money Manager
                                 </Typography>
                                 <Typography
-                                    variant="body1"
-                                    fontSize={'16px'}
+                                    variant="h2"
+                                    fontSize={isMobile ? '1rem' : '1.2rem'}
                                     color="#666"
                                     textAlign={'center'}
                                 >
@@ -121,7 +124,7 @@ function LoginPage() {
                             <Stack direction={'column'} alignItems={'center'} spacing={2} width={'100%'}>
                                 <Typography
                                     variant="h2"
-                                    fontSize={'18px'}
+                                    fontSize={isMobile ? '1rem' : '1.1rem'}
                                     fontWeight={600}
                                     color="#444"
                                     textAlign={'center'}
@@ -135,7 +138,7 @@ function LoginPage() {
                                     useOneTap={false}
                                     auto_select={false}
                                     theme="outline"
-                                    size="large"
+                                    size={isMobile ? "medium" : "large"}
                                     text="signin_with"
                                     shape="rectangular"
                                     locale="vi"
@@ -148,7 +151,7 @@ function LoginPage() {
                                 variant="caption"
                                 color="#888"
                                 textAlign={'center'}
-                                sx={{ mt: 3 }}
+                                sx={{ mt: isMobile ? 2 : 3 }}
                             >
                                 Đăng nhập an toàn với Google
                             </Typography>
