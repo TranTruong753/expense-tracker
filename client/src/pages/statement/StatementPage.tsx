@@ -9,8 +9,10 @@ import {
     Grid,
     Container,
     Divider,
-    List,
-    Stack
+    Stack,
+    FormControl,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import {
     Search,
@@ -24,18 +26,27 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import type { StatementIf } from '../../types';
-import { apiGetListTransactionFromDayToDay, apiGetStatement } from '../../services/transactionService';
+import type { BankAccount, StatementTableIf } from '../../types';
+import { apiGetStatementByBank } from '../../services/transactionService';
 import { formatCurrency } from '../../utils';
-import TransactionCard from '../../components/transaction/TransactionCard';
 import { useNotifications } from '@toolpad/core';
 import { useDeviceType } from '../../hook/useDeviceType';
+import { useAuth } from '../../hook/useAuth';
+import TableStatement from '../../components/statement/TableStatement';
+
 
 
 const StatementPage = () => {
-    const [statementDataObj, setStatementDataObj] = React.useState<Partial<StatementIf>>()
+    const [statementDataTableObj, setStatementDataTableObj] = React.useState<Partial<StatementTableIf>>()
     const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
     const [endDate, setEndDate] = React.useState<Dayjs | null>(null);
+    const [startError, setStartError] = React.useState('');
+    const [endError, setEndError] = React.useState('');
+    const [bankError, setBankError] = React.useState('');
+    const [bankData, setBankData] = React.useState<BankAccount | undefined>(undefined);
+    const [bankId, setBankId] = React.useState<string>('');
+
+    const { listBank } = useAuth()
 
     const notifications = useNotifications()
 
@@ -43,43 +54,52 @@ const StatementPage = () => {
 
     const isTablet = useDeviceType('tablet')
 
-    const [startError, setStartError] = React.useState('');
-    const [endError, setEndError] = React.useState('');
+    const handleSelectChange = (newValue: string): void => {
+        handleReset()
+        setBankId(newValue)
+        setBankError('')
+        if (newValue) {
+            const data = listBank?.find((bank) => bank.id === newValue)
+            setBankData(data)
+            setStartDate(dayjs(data?.createdAt))
+        }
+    }
 
     const handleStartDateChange = (newValue: Dayjs | null) => {
+
+        setStartError('');
         setStartDate(newValue);
 
-        if (newValue && newValue.isAfter(dayjs(), 'day')) {
-            setStartError('Ngày bắt đầu không được lớn hơn hôm nay');
-        } else {
-            setStartError('');
-            // kiểm tra lại endDate nếu đã chọn
-            if (endDate && newValue && endDate.isBefore(newValue, 'day')) {
-                setEndError('Ngày kết thúc không được nhỏ hơn ngày bắt đầu');
-            } else {
-                setEndError('');
-            }
+        if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) return setStartError('Thời gian không hợp lệ');
+
+
+        if (newValue.isBefore(dayjs(bankData?.createdAt), 'day')) {
+            return setStartError('Thời gian không được nhỏ hơn ngày tạo tài khoản');
+        } else if (newValue.isAfter(dayjs(), 'day')) {
+            return setStartError('Thời gian không được lớn hơn hôm nay');
         }
+
     };
 
     const handleEndDateChange = (newValue: Dayjs | null) => {
+        setEndError('');
         setEndDate(newValue);
 
-        if (newValue) {
-            if (newValue.isAfter(dayjs(), 'day')) {
-                setEndError('Ngày kết thúc không được lớn hơn hôm nay');
-            } else if (startDate && newValue.isBefore(startDate, 'day')) {
-                setEndError('Ngày kết thúc không được nhỏ hơn ngày bắt đầu');
-            }
-        }
-        else {
-            setEndError('');
+        if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) return setEndError('Thời gian không hợp lệ');
+
+
+        if (newValue.isAfter(dayjs(), 'day')) {
+            return setEndError('Thời gian không được lớn hơn hôm nay');
+        } else if (startDate && newValue.isBefore(startDate, 'day')) {
+            return setEndError('Thời gian không được nhỏ hơn ngày bắt đầu');
         }
     };
 
 
     const handleReset = () => {
-        setStatementDataObj({})
+        setStatementDataTableObj({})
+        setBankData(undefined)
+        setBankId('')
         setEndDate(null)
         setStartDate(null)
         setEndError('')
@@ -87,8 +107,14 @@ const StatementPage = () => {
     }
 
     const isValidate = () => {
+        if (!bankData || bankId === '') {
+            notifications.show('Bạn chưa chọn tài khoản ngân hàng!', {
+                severity: 'error'
+            })
+            return false
+        }
         if (!startDate || !endDate) {
-            notifications.show('Bạn chưa nhập ngày bắt đầu và ngày kết thúc!', {
+            notifications.show('Bạn chưa nhập ngày bắt đầu hoặc ngày kết thúc!', {
                 severity: 'error'
             })
             return false
@@ -101,19 +127,11 @@ const StatementPage = () => {
         if (!isValidate()) return
 
         try {
-
             const fromDate = dayjs(startDate).format('YYYY-MM-DD');
             const toDate = dayjs(endDate).format('YYYY-MM-DD');
+            const res = await apiGetStatementByBank({ fromDate, toDate, bankId })
 
-            const [statementRes, transactionRes] = await Promise.all([
-                apiGetStatement({ fromDate, toDate }),
-                apiGetListTransactionFromDayToDay({ fromDate, toDate }),
-            ]);
-
-            setStatementDataObj({
-                summary: statementRes.data,
-                transactions: transactionRes.data
-            })
+            setStatementDataTableObj(res.data)
 
         } catch {
             notifications.show('Lỗi máy chủ ! vui lòng thử lại sau', {
@@ -145,19 +163,61 @@ const StatementPage = () => {
             </Stack>
 
             {/* Bộ lọc thời gian */}
-
             <Card sx={{ mb: 3 }}>
                 <CardContent>
-                    <Stack direction={(isMobile || isTablet) ? 'column' : 'row'} justifyContent={'start'} alignItems={isMobile ? 'center' : 'start'} spacing={(isMobile || isTablet) ? 2:3} >
+                    <FormControl fullWidth size='small'>
+                        <Stack direction={'column'} alignItems={isMobile ? 'center' : 'start'}>
+                            <Select
+                                value={bankId}
+                                onChange={(event) => handleSelectChange(event.target.value)}
+                                displayEmpty
+                                error={!!bankError}
+                                fullWidth
+                                sx={{
+                                    width: 300,
+                                    borderRadius: 2,
+                                    backgroundColor: '#fafafa',
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#667eea',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: '#667eea',
+                                    },
+                                }}
+                            >
+                                <MenuItem value="">
+                                    <em>Chọn ngân hàng</em>
+                                </MenuItem>
+                                {listBank?.map((bank) => (
+                                    <MenuItem key={bank.id} value={bank.id}>
+                                        {bank.bankName} - stk: {bank.accountNumber}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Stack>
+                    </FormControl>
+                    {bankError ? (
+                        <Typography variant="caption" color="error" sx={{ mt: 0.5, display: 'block' }}>
+                            {bankError}
+                        </Typography>
+                    ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
+
+                    <Divider sx={{ mb: 2 }} />
+
+                    <Stack direction={(isMobile || isTablet) ? 'column' : 'row'} justifyContent={'start'} alignItems={isMobile ? 'center' : 'start'} spacing={(isMobile || isTablet) ? 3 : 2} >
+
 
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 2 : 3} justifyContent={'space-between'} >
+                            <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 3 : 2} justifyContent={'space-between'}
+                            >
                                 <DatePicker
                                     label="Từ ngày"
                                     value={startDate}
                                     onChange={handleStartDateChange}
                                     maxDate={endDate ? endDate : dayjs()}
+                                    minDate={bankData?.createdAt ? dayjs(bankData.createdAt) : undefined}
                                     format='DD/MM/YYYY'
+                                    disabled={bankId === '' ? true : false}
                                     slotProps={{
                                         textField: {
                                             size: 'small',
@@ -165,7 +225,7 @@ const StatementPage = () => {
                                             required: true,
                                             error: !!startError,
                                             helperText: startError ? startError : ' ',
-                                            sx: {  width: 280 },
+                                            sx: { width: isTablet ? 250 : 300 },
                                         }
                                     }}
 
@@ -176,6 +236,7 @@ const StatementPage = () => {
                                     minDate={startDate ? startDate : undefined} // không cho chọn nhỏ hơn ngày bắt đầu
                                     onChange={handleEndDateChange}
                                     maxDate={dayjs()}
+                                    disabled={bankId === '' ? true : false}
                                     format='DD/MM/YYYY'
                                     slotProps={{
                                         textField: {
@@ -184,7 +245,7 @@ const StatementPage = () => {
                                             required: true,
                                             error: !!endError,
                                             helperText: endError ? endError : ' ',
-                                            sx: {  width: 280 },
+                                            sx: { width: isTablet ? 250 : 300 },
                                         }
                                     }}
                                 />
@@ -192,7 +253,7 @@ const StatementPage = () => {
                         </LocalizationProvider>
 
 
-                        <Stack direction={'row'} spacing={1} >
+                        <Stack direction={'row'} spacing={1} sx={{}}>
                             <Button
                                 variant="contained"
                                 startIcon={<Search />}
@@ -251,7 +312,7 @@ const StatementPage = () => {
                                     Số dư đầu kỳ:
                                 </Typography>
                                 <Typography variant="h6" color="primary" fontWeight="bold" height={'20px'} fontSize={'1.5rem'}>
-                                    {statementDataObj?.summary ? formatCurrency(Number(statementDataObj?.summary?.startBalance)) : ' '}
+                                    {statementDataTableObj?.openingBalance ? formatCurrency(Number(statementDataTableObj?.openingBalance)) : ' '}
                                 </Typography>
                             </Box>
 
@@ -264,7 +325,7 @@ const StatementPage = () => {
                                     <Typography variant="body1">Tổng thu:</Typography>
                                 </Box>
                                 <Typography variant="h6" color="success.main" fontWeight="bold">
-                                    {statementDataObj?.summary ? `+ ${formatCurrency(Number(statementDataObj?.summary?.totalIncome))}` : ' '}
+                                    {statementDataTableObj?.totalIncome ? `+ ${formatCurrency(Number(statementDataTableObj.totalIncome))}` : ' '}
                                 </Typography>
                             </Box>
 
@@ -275,7 +336,7 @@ const StatementPage = () => {
                                     <Typography variant="body1">Tổng chi:</Typography>
                                 </Box>
                                 <Typography variant="h6" color="error.main" fontWeight="bold">
-                                    {statementDataObj?.summary ? `- ${formatCurrency(Number(statementDataObj?.summary?.totalExpense))}` : ' '}
+                                    {statementDataTableObj?.totalExpense ? `- ${formatCurrency(Number(statementDataTableObj.totalExpense))}` : ' '}
                                 </Typography>
                             </Box>
 
@@ -287,7 +348,7 @@ const StatementPage = () => {
                                     Số dư cuối kỳ:
                                 </Typography>
                                 <Typography variant="h6" color="primary" fontWeight="bold" fontSize={'1.5rem'}>
-                                    {statementDataObj?.summary ? ` ${formatCurrency(Number(statementDataObj?.summary?.endBalance))}` : ' '}
+                                    {statementDataTableObj?.closingBalance ? formatCurrency(Number(statementDataTableObj?.closingBalance)) : ' '}
                                 </Typography>
                             </Box>
                         </CardContent>
@@ -305,16 +366,7 @@ const StatementPage = () => {
                                 </Typography>
                             </Box>
 
-                            {(statementDataObj?.transactions && statementDataObj.transactions?.length > 0) ?
-                                (<List sx={{ width: '100%', height: '40vh', overflowY: 'auto' }}>
-                                    {statementDataObj?.transactions?.map((transaction) => (
-                                        <TransactionCard transaction={transaction} />
-                                    ))}
-                                </List>) :
-                                <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} height={'40vh'} >
-                                    <Typography component={'span'} fontSize={'18px'}>Bạn chưa có giao dịch nào</Typography>
-                                </Stack>
-                            }
+                            <TableStatement data={statementDataTableObj} />
                         </CardContent>
                     </Card>
                 </Grid>

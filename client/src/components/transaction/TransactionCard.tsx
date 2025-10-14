@@ -54,7 +54,7 @@ function TransactionCard({ transaction }: { transaction: Partial<TransactionStat
                             </Box>
 
                             <Box>
-                                <Typography variant="body1" fontWeight="medium">
+                                <Typography variant="body1" fontWeight="medium" textAlign={'end'}>
                                     {transaction.bank}
                                 </Typography>
                                 <Typography

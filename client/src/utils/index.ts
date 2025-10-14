@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import type { BankAccount, TransactionStatement } from "../types";
 
 // Danh sách ngân hàng phổ biến ở Việt Nam
@@ -67,12 +68,33 @@ export const addItemBalanceBank = (newBank: BankAccount, listBank: BankAccount[]
     setListBank(newList);
 };
 
-export const addItemTransaction = (newTransaction: TransactionStatement, listTransaction: TransactionStatement[] | null, setListTransaction: (listTransaction: TransactionStatement[] | null) => void) => {
+// export const addItemTransaction = (newTransaction: TransactionStatement, listTransaction: TransactionStatement[] | null, setListTransaction: (listTransaction: TransactionStatement[] | null) => void) => {
+//     if (!listTransaction) return;
+//     const newList = [...listTransaction];
+//     newList.unshift(newTransaction);
+//     setListTransaction(newList);
+// }
+
+
+export const addItemTransaction = (
+    newTransaction: TransactionStatement,
+    listTransaction: TransactionStatement[] | null,
+    setListTransaction: (listTransaction: TransactionStatement[] | null) => void
+) => {
     if (!listTransaction) return;
-    const newList = [...listTransaction];
-    newList.unshift(newTransaction);
+
+    // Gộp mảng cũ + mới
+    const newList = [...listTransaction, newTransaction];
+
+    // Sắp xếp theo transactionDate mới nhất trước
+    newList.sort((a, b) => {
+        const dateA = dayjs(a.transactionDate);
+        const dateB = dayjs(b.transactionDate);
+        return dateB.valueOf() - dateA.valueOf(); // giảm dần
+    });
+
     setListTransaction(newList);
-}
+};
 
 // Loại bỏ tất cả ký tự không phải số
 export const extractNumbers = (value: string): string => {

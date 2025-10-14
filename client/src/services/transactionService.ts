@@ -6,12 +6,16 @@ export const apiCreateTransaction = async (data: Partial<TransactionSubmit>) => 
     return res.data;
 };
 
-interface fromDateToDate {
+export interface FromDateToDate {
     fromDate: string,
     toDate: string
 }
 
-export const apiGetStatement = async ({ fromDate, toDate }: fromDateToDate) => {
+export interface FormGetStatementByBank extends FromDateToDate {
+    bankId: string,
+}
+
+export const apiGetStatement = async ({ fromDate, toDate }: FromDateToDate) => {
     const res = await axiosInstance.get(`/transaction/get-statement`, {
         params: { fromDate, toDate }
     });
@@ -23,9 +27,16 @@ export const apiGetListTransaction = async () => {
     return res.data;
 };
 
-export const apiGetListTransactionFromDayToDay = async ({ fromDate, toDate }: fromDateToDate) => {
+export const apiGetListTransactionFromDayToDay = async ({ fromDate, toDate }: FromDateToDate) => {
     const res = await axiosInstance.get(`/transaction/get-list-from-to`, {
         params: { fromDate, toDate }
     });
     return res.data;
 };
+
+export const apiGetStatementByBank = async ({ bankId, fromDate, toDate }: FormGetStatementByBank) => {
+    const res = await axiosInstance.get('/transaction/get-statement-by-bank', {
+        params: { fromDate, toDate, bankId }
+    })
+    return res.data;
+}

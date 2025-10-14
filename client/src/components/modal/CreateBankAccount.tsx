@@ -245,7 +245,6 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                                 onChange={handleInputChange}
                                 placeholder="1234xxxx"
                                 error={hasError('accountNumber')}
-
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
                                         borderRadius: 2,

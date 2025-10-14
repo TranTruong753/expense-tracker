@@ -1,18 +1,6 @@
 import type { ReactNode } from "react";
 
 // Định nghĩa types
-// {Statement Page}
-export interface SummaryStatement {
-    startBalance: number,
-    totalIncome: number,
-    totalExpense: number,
-    endBalance: number,
-}
-
-export interface StatementIf {
-    summary: SummaryStatement,
-    transactions: TransactionStatement[]
-}
 
 export interface BankInfo {
     bankName: string;
@@ -37,6 +25,7 @@ export interface BankAccount {
     accountNumber: string,
     balance: number,
     initialBalance: number,
+    createdAt?: Date,
 }
 
 export interface Category {
@@ -57,6 +46,28 @@ export interface Transaction {
     transactionDate: Date
 }
 
+export interface TransactionCustom {
+    date: string;
+    description: string;
+    opening: number;
+    moneyIn: number;
+    moneyOut: number;
+    closing: number;
+    category: string;
+    categoryIcon: string;
+}
+
+export interface StatementTableIf {
+    bank: BankAccount,
+    fromDate: string,
+    toDate: string,
+    totalExpense: number,
+    totalIncome: number,
+    openingBalance: number,
+    closingBalance: number,
+    transactions: TransactionCustom[]
+}
+
 export interface TransactionStatement extends Transaction {
     id: string
     bank: string,
@@ -73,6 +84,7 @@ export interface TransactionInfo {
     type: string;
     categoryId: string;
     description: string;
+    transactionDate: string;
 }
 export interface FormDataRegister extends BankAccount {
     userId: string,
@@ -118,6 +130,7 @@ export interface ExpenseOrIncomeFormErrors {
     bankId?: string;
     categoryId?: string;
     description?: string;
-    type?: string
+    type?: string;
+    transactionDate?: string
 }
 

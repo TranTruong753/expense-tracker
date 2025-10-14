@@ -39,7 +39,7 @@ function TransactionPage() {
                     </Box>
 
                     {(listTransaction && listTransaction.length > 0) ?
-                        (<List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                        (<List sx={{ width: '100%', height: '75vh', overflowY: 'auto' }}>
                             {listTransaction?.map((transaction) => (
                                 <TransactionCard transaction={transaction} />
                             ))}

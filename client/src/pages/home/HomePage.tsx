@@ -192,7 +192,7 @@ const HomePage = () => {
                         <CardContent sx={{ py: 0 }}>
 
                             {(listTransaction && listTransaction.length > 0) ?
-                                (<List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
+                                (<List sx={{ width: '100%', height: '40vh', overflowY: 'auto' }}>
                                     {listTransaction.map((transaction) => (
                                         <Box key={transaction.id} > <TransactionCard transaction={transaction} /></Box>
                                     ))}

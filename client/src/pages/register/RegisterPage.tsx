@@ -340,7 +340,6 @@ function RegisterPage() {
                                     size='small'
                                     variant="outlined"
                                     name="initialBalance"
-                                    // value={bankInfo.initialBalance}
                                     value={formatNumberWithDots(bankInfo.initialBalance)}
                                     onChange={handleInputChange}
                                     type="text"

@@ -15,13 +15,15 @@ import {
 } from '@mui/material';
 import { AccountBalanceWallet, AttachMoney } from '@mui/icons-material';
 import { useAuth } from "../../hook/useAuth";
-import type { ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
+import type { BankAccount, ExpenseOrIncomeFormErrors, ModalProps, TransactionInfo } from '../../types';
 import { apiCreateTransaction } from '../../services/transactionService';
 import { useNotifications } from '@toolpad/core';
 import type { AxiosError } from 'axios';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { addItemTransaction, changeBalanceBank, extractNumbers, formatCurrency, formatNumberWithDots, styleModal } from '../../utils';
 import { useDeviceType } from '../../hook/useDeviceType';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
@@ -31,12 +33,15 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
     const notifications = useNotifications()
 
+    const [bankData, setBankData] = React.useState<BankAccount | undefined>(undefined);
+
     const [formData, setFormData] = useState<TransactionInfo>({
         amount: '',
         bankId: '',
         categoryId: '',
         description: '',
-        type: 'EXPENSE'
+        type: 'EXPENSE',
+        transactionDate: ''
     });
 
     const [errors, setErrors] = useState<ExpenseOrIncomeFormErrors>({});
@@ -64,22 +69,88 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
         }
     };
 
+    const handleChangeBank = (newValue: string): void => {
+        setErrors({
+            ...errors,
+            bankId: ''
+        });
+        if (newValue) {
+            const data = listBank?.find((bank) => bank.id === newValue)
+            setBankData(data)
+            setFormData({
+                ...formData,
+                bankId: newValue,
+                transactionDate: data?.createdAt ? dayjs().toISOString() : ''
+            });
+        }
+    }
+
+    const handleSelectDate = (newValue: Dayjs | null) => {
+        console.log("newValue", dayjs(newValue).toISOString())
+        const value = newValue?.toISOString()
+        setFormData({
+            ...formData,
+            transactionDate: String(value)
+        })
+
+        setErrors({
+            ...errors,
+            transactionDate: ''
+        });
+
+
+        if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) {
+            return setErrors({
+                ...errors,
+                transactionDate: 'Thời gian không hợp lệ'
+            });
+        }
+
+
+
+        if (newValue.isBefore(dayjs(bankData?.createdAt), 'day')) {
+            return setErrors({
+                ...errors,
+                transactionDate: 'Thời gian không được nhỏ hơn ngày tạo tài khoản'
+            });
+        } else if (newValue.isAfter(dayjs(), 'day')) {
+            return setErrors({
+                ...errors,
+                transactionDate: 'Thời gian không được lớn hơn hôm nay'
+            });
+        }
+    }
+
+
     const validateForm = (): boolean => {
-        const newErrors: ExpenseOrIncomeFormErrors = {};
+        const newErrors = { ...errors };
 
         if (!formData.amount || Number(formData.amount) <= 0) {
             newErrors.amount = 'Số tiền phải lớn hơn 0';
+        } else {
+            delete newErrors.amount; // nếu hợp lệ thì xóa lỗi cũ
         }
 
         if (!formData.bankId) {
+            console.log("dung lại", formData.bankId);
             newErrors.bankId = 'Vui lòng chọn ngân hàng';
+        } else {
+            delete newErrors.bankId;
         }
 
         if (!formData.categoryId) {
             newErrors.categoryId = 'Vui lòng chọn danh mục';
+        } else {
+            delete newErrors.categoryId;
         }
 
+        if (errors.transactionDate === '') {
+            delete newErrors.transactionDate
+        }
+        // Cập nhật lỗi (merge cũ + mới)
         setErrors(newErrors);
+
+        // Trả true nếu không còn lỗi nào
         return Object.keys(newErrors).length === 0;
     };
 
@@ -93,7 +164,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                 ...formData,
                 amount: parseFloat(formData.amount),
                 userId: user.id,
-                transactionDate: dayjs().toDate()
+                transactionDate: dayjs(formData.transactionDate).toDate()
             }
 
             try {
@@ -120,6 +191,10 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                 });
             }
 
+        } else {
+            return notifications.show('Có lỗi bên phía máy chủ! vui lòng thử lại sau', {
+                severity: "error",
+            });
         }
     };
 
@@ -129,8 +204,10 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
             bankId: '',
             categoryId: '',
             description: '',
-            type: 'EXPENSE'
+            type: 'EXPENSE',
+            transactionDate: '',
         });
+        setBankData(undefined)
         setErrors({});
         onClose();
     };
@@ -207,7 +284,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                                 labelId="bank-select-label"
                                 value={formData.bankId}
                                 label="Ngân Hàng"
-                                onChange={handleChange('bankId')}
+                                onChange={(event) => handleChangeBank(event.target.value)}
                             >
                                 {listBank && listBank.map((bank) => (
                                     <MenuItem key={bank.id} value={bank.id}>
@@ -238,6 +315,35 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                             </Select>
                             {errors.categoryId ? <FormHelperText>{errors.categoryId}</FormHelperText> : <Typography component={'span'} height={'20px'}> </Typography>}
                         </FormControl>
+
+                        {/* Chọn thời gian */}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label="Từ ngày"
+                                value={
+                                    formData.transactionDate
+                                        ? dayjs(formData.transactionDate) // có giá trị -> dùng giá trị đó
+                                        : null                    // chưa có -> mặc định ngày hiện tại
+                                }
+                                onChange={handleSelectDate}
+                                maxDate={dayjs()}
+                                minDate={bankData?.createdAt ? dayjs(bankData.createdAt) : undefined}
+                                format='DD/MM/YYYY'
+                                disabled={formData.bankId === '' ? true : false}
+                                slotProps={{
+                                    textField: {
+                                        size: 'small',
+                                        fullWidth: true,
+                                        required: true,
+                                        error: !!errors.transactionDate,
+                                        helperText: errors.transactionDate ? errors.transactionDate : ' '
+                                        ,
+                                    }
+                                }}
+
+                            />
+
+                        </LocalizationProvider>
 
                         {/* Mô tả */}
                         <TextField
