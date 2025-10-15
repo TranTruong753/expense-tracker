@@ -34,8 +34,6 @@ import { useDeviceType } from '../../hook/useDeviceType';
 import { useAuth } from '../../hook/useAuth';
 import TableStatement from '../../components/statement/TableStatement';
 
-
-
 const StatementPage = () => {
     const [statementDataTableObj, setStatementDataTableObj] = React.useState<Partial<StatementTableIf>>()
     const [startDate, setStartDate] = React.useState<Dayjs | null>(null);
@@ -360,7 +358,7 @@ const StatementPage = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                                 <Receipt sx={{ mr: 1, color: 'primary.main' }} />
                                 <Typography variant="h6" fontWeight="bold">
-                                    CHI TIẾT GIAO DỊCH
+                                    CHI TIẾT 
                                 </Typography>
                             </Box>
 

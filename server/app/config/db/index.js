@@ -7,7 +7,7 @@ async function connect() {
         console.log("Connect successfully!!!");
         // Khởi tạo dữ liệu seed sau khi kết nối database thành công
         await initializeData();
-    } catch (error) {
+    } catch {
         console.log("Connect failure!!!");
     }
 }

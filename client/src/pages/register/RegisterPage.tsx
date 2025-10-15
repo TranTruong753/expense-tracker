@@ -119,6 +119,8 @@ function RegisterPage() {
 
         if (!bankInfo.bankName.trim()) {
             newErrors.bankName = 'Vui lòng nhập tên ngân hàng';
+        } else {
+            delete newErrors.bankName;
         }
 
         if (!bankInfo.accountNumber.trim()) {
@@ -128,11 +130,16 @@ function RegisterPage() {
         }
         else if (bankInfo.accountNumber.length < 8 || bankInfo.accountNumber.length > 14) {
             newErrors.accountNumber = 'Số tài khoản phải từ 8–14 chữ số';
+        } else {
+            delete newErrors.accountNumber;
         }
+
         if (!bankInfo.initialBalance) {
             newErrors.initialBalance = 'Vui lòng nhập số dư ban đầu';
         } else if (parseFloat(bankInfo.initialBalance) < 0) {
             newErrors.initialBalance = 'Số dư không thể âm';
+        } else {
+            delete newErrors.initialBalance;
         }
 
         if (errors.initialDate === '') {

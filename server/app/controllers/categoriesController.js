@@ -48,7 +48,6 @@ class categoriesController {
     // [POST] /categories/create
     async create(req, res, next) {
         try {
-            console.log('BODY:', req.body);
             const formData = req.body;
             const newCategories = new Category(formData);
             await newCategories.save();

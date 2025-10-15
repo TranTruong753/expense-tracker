@@ -209,43 +209,6 @@ const HomePage = () => {
                 </Grid>
             </Grid>
 
-            {/* <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid size={{ xs: 12, md: 4 }}>
-
-                    {listBank?.map(account => (
-                        <Box key={account.id}>
-                            <BankCard account={account} />
-                        </Box>
-                    ))}
-
-
-                </Grid>
-
-                <Grid size={{ xs: 12, md: 8 }}>
-
-                    <Card sx={{ minHeight: '40vh' }}>
-                        <CardContent sx={{ py: 0 }}>
-
-                            {(listTransaction && listTransaction.length > 0) ?
-                                (<List sx={{ width: '100%', height: '100%', overflowY: 'auto' }}>
-                                    {listTransaction.map((transaction) => (
-                                        <Box key={transaction.id} > <TransactionCard transaction={transaction} /></Box>
-                                    ))}
-                                </List>) :
-                                <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} height={'30vh'}>
-                                    <Typography component={'span'} fontSize={'18px'}>Bạn chưa có giao dịch nào</Typography>
-                                </Stack>
-
-                            }
-
-
-
-                        </CardContent>
-                    </Card>
-
-                </Grid>
-            </Grid> */}
-
             {/* Modal */}
 
             <ExpenseModal open={openExpense} onClose={handleCloseExpense} />

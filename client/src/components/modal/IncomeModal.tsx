@@ -83,7 +83,6 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
     }
 
     const handleSelectDate = (newValue: Dayjs | null) => {
-        console.log("newValue", dayjs(newValue).toISOString())
         const value = newValue?.toISOString()
         setFormData({
             ...formData,
@@ -128,7 +127,6 @@ const IncomeModal = ({ open, onClose }: ModalProps) => {
         }
 
         if (!formData.bankId) {
-            console.log("dung lại", formData.bankId);
             newErrors.bankId = 'Vui lòng chọn ngân hàng';
         } else {
             delete newErrors.bankId;

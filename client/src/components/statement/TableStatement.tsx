@@ -9,6 +9,7 @@ import {
     Paper,
     TablePagination,
     Stack,
+    Typography,
 } from '@mui/material';
 import type { StatementTableIf } from '../../types';
 
@@ -45,18 +46,18 @@ function TableStatement({ data }: { data?: Partial<StatementTableIf> }) {
     return (
         <Paper sx={{ height: '40vh' }}>
             <Stack direction={'column'} justifyContent={'space-between'} alignItems={'start'} sx={{ height: '40vh' }}>
-                <TableContainer  sx={{ height: '80%' }} >
+                <TableContainer sx={{ height: '80%' }} >
                     <Table sx={{
                         minWidth: 650,
                     }} aria-label="statement table">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Ngày</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Nội dung</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Đầu kỳ</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Tiền vào</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Tiền ra</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Cuối kỳ</TableCell>
+                                <TableCell sx={{ width: '10%', fontWeight: 'bold' }}>Ngày</TableCell>
+                                <TableCell sx={{ width: '18%', fontWeight: 'bold' }}>Nội dung</TableCell>
+                                <TableCell align="right" sx={{ width: '18%', fontWeight: 'bold' }}>Đầu kỳ</TableCell>
+                                <TableCell align="right" sx={{ width: '18%', fontWeight: 'bold' }}>Tiền vào</TableCell>
+                                <TableCell align="right" sx={{ width: '18%', fontWeight: 'bold' }}>Tiền ra</TableCell>
+                                <TableCell align="right" sx={{ width: '18%', fontWeight: 'bold' }}>Cuối kỳ</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -70,41 +71,47 @@ function TableStatement({ data }: { data?: Partial<StatementTableIf> }) {
                                 >
                                     <TableCell>{transaction.date}</TableCell>
                                     <TableCell>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <span style={{ marginRight: 8 }}>{transaction.categoryIcon}</span>
+                                        <Typography
+                                            sx={{
+                                                display: "-webkit-box",
+                                                WebkitBoxOrient: "vertical",
+                                                WebkitLineClamp: 2, 
+                                                overflow: "hidden",
+                                            }}
+                                        >
                                             {transaction.description}
-                                        </div>
+                                        </Typography>
                                     </TableCell>
-                                    <TableCell align="right">{formatCurrency(transaction.opening)}</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 'bold' }}>{formatCurrency(transaction.opening)}</TableCell>
                                     <TableCell align="right" sx={{ color: 'green' }}>
-                                        {transaction.moneyIn > 0 ? formatCurrency(transaction.moneyIn) : '-'}
+                                        {transaction.moneyIn > 0 ? formatCurrency(transaction.moneyIn) : '_'}
                                     </TableCell>
                                     <TableCell align="right" sx={{ color: 'red' }}>
-                                        {transaction.moneyOut > 0 ? formatCurrency(transaction.moneyOut) : '-'}
+                                        {transaction.moneyOut > 0 ? formatCurrency(transaction.moneyOut) : '_'}
                                     </TableCell>
                                     <TableCell align="right" sx={{ fontWeight: 'bold' }}>
                                         {formatCurrency(transaction.closing)}
                                     </TableCell>
                                 </TableRow>
                             ))}
-                        </TableBody>
-    
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    count={transactions?.length ? transactions.length : 0}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Số hàng mỗi trang:"
-                    labelDisplayedRows={({ from, to, count }) =>
-                        `${from}-${to} trong tổng ${count}`
-                    }
-                />
-            </Stack>
-        </Paper>
+                    </TableBody>
+
+                </Table>
+            </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                count={transactions?.length ? transactions.length : 0}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                labelRowsPerPage="Số hàng mỗi trang:"
+                labelDisplayedRows={({ from, to, count }) =>
+                    `${from}-${to} trong tổng ${count}`
+                }
+            />
+        </Stack>
+        </Paper >
     );
 }
 

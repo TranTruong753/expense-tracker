@@ -54,7 +54,6 @@ class bankAccountController {
                 data: bankAccounts,
             });
         } catch (error) {
-            console.error("getAllBankByUserId error:", error.message);
             next(error);
         }
     }
