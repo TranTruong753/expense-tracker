@@ -8,6 +8,9 @@ const bankAccountSchema = new mongoose.Schema({
   accountNumber: { type: String, required: true },
   balance: { type: mongoose.Schema.Types.Decimal128, default: 0 },
   initialBalance: { type: mongoose.Schema.Types.Decimal128, default: 0 },
+  initialDate: {
+    type: Date
+  },
 
 }, {
   timestamps: true
@@ -21,9 +24,9 @@ bankAccountSchema.set('toJSON', {
     if (ret.initialBalance != null) {
       ret.initialBalance = parseFloat(ret.initialBalance.toString());
     }
-    ret.id = ret._id;     
-    delete ret._id;        
-    delete ret.__v;        
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
     return ret;
   },
 });

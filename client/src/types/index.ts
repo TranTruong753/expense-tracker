@@ -6,12 +6,14 @@ export interface BankInfo {
     bankName: string;
     initialBalance: string;
     accountNumber: string;
+    initialDate: string
 }
 
 export interface FormErrors {
     bankName?: string;
     initialBalance?: string;
-    accountNumber?: string
+    accountNumber?: string;
+    initialDate?: string
 }
 
 
@@ -19,14 +21,6 @@ export interface AuthProviderProps {
     children: ReactNode;
 }
 
-export interface BankAccount {
-    id: string,
-    bankName: string,
-    accountNumber: string,
-    balance: number,
-    initialBalance: number,
-    createdAt?: Date,
-}
 
 export interface Category {
     id: string;
@@ -85,6 +79,14 @@ export interface TransactionInfo {
     categoryId: string;
     description: string;
     transactionDate: string;
+}
+export interface BankAccount {
+    id: string,
+    bankName: string,
+    accountNumber: string,
+    balance: number,
+    initialBalance: number,
+    initialDate?: Date,
 }
 export interface FormDataRegister extends BankAccount {
     userId: string,

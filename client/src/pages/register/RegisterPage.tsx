@@ -22,6 +22,9 @@ import { useNotifications } from '@toolpad/core';
 import { apiRegister } from '../../services/authService';
 import type { AxiosError } from 'axios';
 import { useDeviceType } from '../../hook/useDeviceType';
+import dayjs, { Dayjs } from 'dayjs';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 
 
@@ -29,7 +32,8 @@ function RegisterPage() {
     const [bankInfo, setBankInfo] = useState<BankInfo>({
         bankName: '',
         initialBalance: '',
-        accountNumber: ''
+        accountNumber: '',
+        initialDate: ''
     });
 
     const navigate = useNavigate();
@@ -66,6 +70,34 @@ function RegisterPage() {
         }
     };
 
+    const handleSelectDate = (newValue: Dayjs | null) => {
+        const value = newValue?.toISOString()
+        setBankInfo({
+            ...bankInfo,
+            initialDate: String(value)
+        })
+
+        setErrors({
+            ...errors,
+            initialDate: ''
+        });
+
+
+        if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) {
+            return setErrors({
+                ...errors,
+                initialDate: 'Thời gian không hợp lệ'
+            });
+        }
+
+        if (newValue.isAfter(dayjs(), 'day')) {
+            return setErrors({
+                ...errors,
+                initialDate: 'Thời gian không được lớn hơn hôm nay'
+            });
+        }
+    }
+
     const handleSelectChange = (e: SelectChangeEvent<string>): void => {
         const { name, value } = e.target;
         setBankInfo(prev => ({
@@ -83,7 +115,7 @@ function RegisterPage() {
 
 
     const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
+        const newErrors = { ...errors };
 
         if (!bankInfo.bankName.trim()) {
             newErrors.bankName = 'Vui lòng nhập tên ngân hàng';
@@ -101,6 +133,10 @@ function RegisterPage() {
             newErrors.initialBalance = 'Vui lòng nhập số dư ban đầu';
         } else if (parseFloat(bankInfo.initialBalance) < 0) {
             newErrors.initialBalance = 'Số dư không thể âm';
+        }
+
+        if (errors.initialDate === '') {
+            delete newErrors.initialDate
         }
 
         setErrors(newErrors);
@@ -125,6 +161,7 @@ function RegisterPage() {
                 userId: id,
                 initialBalance: initialBalanceConvertFloat,
                 balance: initialBalanceConvertFloat,
+                initialDate: dayjs(bankInfo.initialDate).toDate()
             }
             try {
 
@@ -133,7 +170,8 @@ function RegisterPage() {
                 setBankInfo({
                     bankName: '',
                     initialBalance: '',
-                    accountNumber: ''
+                    accountNumber: '',
+                    initialDate: ''
                 });
 
             } catch (error) {
@@ -374,6 +412,31 @@ function RegisterPage() {
                                 ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
                             </Box>
 
+                            {/* Chọn thời gian */}
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    label="Ngày tạo"
+                                    value={
+                                        bankInfo.initialDate
+                                            ? dayjs(bankInfo.initialDate) // có giá trị -> dùng giá trị đó
+                                            : null                // chưa có -> mặc định ngày hiện tại
+                                    }
+                                    onChange={handleSelectDate}
+                                    maxDate={dayjs()}
+                                    format='DD/MM/YYYY'
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            fullWidth: true,
+                                            required: true,
+                                            error: !!errors.initialDate,
+                                            helperText: errors.initialDate ? errors.initialDate : ' ',
+                                        }
+                                    }}
+
+                                />
+                            </LocalizationProvider>
+
                             {/* Nút thêm tài khoản */}
                             <Box>
                                 <Button
@@ -387,7 +450,7 @@ function RegisterPage() {
                                         borderRadius: 2,
                                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                         fontWeight: 'bold',
-                                        fontSize: isMobile ? '1rem' :'1.1rem',
+                                        fontSize: isMobile ? '1rem' : '1.1rem',
                                         textTransform: 'none',
                                         boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
                                         '&:hover': {

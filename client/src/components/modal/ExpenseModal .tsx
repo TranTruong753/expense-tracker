@@ -80,13 +80,12 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
             setFormData({
                 ...formData,
                 bankId: newValue,
-                transactionDate: data?.createdAt ? dayjs().toISOString() : ''
+                transactionDate: data?.initialDate ? dayjs().toISOString() : ''
             });
         }
     }
 
     const handleSelectDate = (newValue: Dayjs | null) => {
-        console.log("newValue", dayjs(newValue).toISOString())
         const value = newValue?.toISOString()
         setFormData({
             ...formData,
@@ -108,7 +107,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
 
 
 
-        if (newValue.isBefore(dayjs(bankData?.createdAt), 'day')) {
+        if (newValue.isBefore(dayjs(bankData?.initialDate), 'day')) {
             return setErrors({
                 ...errors,
                 transactionDate: 'Thời gian không được nhỏ hơn ngày tạo tài khoản'
@@ -132,7 +131,6 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
         }
 
         if (!formData.bankId) {
-            console.log("dung lại", formData.bankId);
             newErrors.bankId = 'Vui lòng chọn ngân hàng';
         } else {
             delete newErrors.bankId;
@@ -191,10 +189,6 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                 });
             }
 
-        } else {
-            return notifications.show('Có lỗi bên phía máy chủ! vui lòng thử lại sau', {
-                severity: "error",
-            });
         }
     };
 
@@ -327,7 +321,7 @@ const ExpenseModal = ({ open, onClose }: ModalProps) => {
                                 }
                                 onChange={handleSelectDate}
                                 maxDate={dayjs()}
-                                minDate={bankData?.createdAt ? dayjs(bankData.createdAt) : undefined}
+                                minDate={bankData?.initialDate ? dayjs(bankData?.initialDate) : undefined}
                                 format='DD/MM/YYYY'
                                 disabled={formData.bankId === '' ? true : false}
                                 slotProps={{

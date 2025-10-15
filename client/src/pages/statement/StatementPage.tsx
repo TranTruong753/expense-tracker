@@ -61,7 +61,7 @@ const StatementPage = () => {
         if (newValue) {
             const data = listBank?.find((bank) => bank.id === newValue)
             setBankData(data)
-            setStartDate(dayjs(data?.createdAt))
+            setStartDate(dayjs(data?.initialDate))
         }
     }
 
@@ -73,7 +73,7 @@ const StatementPage = () => {
         if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) return setStartError('Thời gian không hợp lệ');
 
 
-        if (newValue.isBefore(dayjs(bankData?.createdAt), 'day')) {
+        if (newValue.isBefore(dayjs(bankData?.initialDate), 'day')) {
             return setStartError('Thời gian không được nhỏ hơn ngày tạo tài khoản');
         } else if (newValue.isAfter(dayjs(), 'day')) {
             return setStartError('Thời gian không được lớn hơn hôm nay');
@@ -215,7 +215,7 @@ const StatementPage = () => {
                                     value={startDate}
                                     onChange={handleStartDateChange}
                                     maxDate={endDate ? endDate : dayjs()}
-                                    minDate={bankData?.createdAt ? dayjs(bankData.createdAt) : undefined}
+                                    minDate={bankData?.initialDate ? dayjs(bankData.initialDate) : undefined}
                                     format='DD/MM/YYYY'
                                     disabled={bankId === '' ? true : false}
                                     slotProps={{
@@ -261,7 +261,6 @@ const StatementPage = () => {
 
                                 sx={{
                                     py: 1.5,
-                                    // whiteSpace: 'nowrap',
                                     textTransform: 'none',
                                     height: '40px'
                                 }}
@@ -275,7 +274,6 @@ const StatementPage = () => {
                                 onClick={handleReset}
                                 sx={{
                                     py: 1.5,
-                                    // whiteSpace: 'nowrap',
                                     textTransform: 'none',
                                     height: '40px'
                                 }}

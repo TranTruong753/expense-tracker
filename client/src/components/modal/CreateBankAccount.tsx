@@ -8,6 +8,9 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { apiCreateBank } from "../../services/bankAccountService";
 import { useAuth } from "../../hook/useAuth";
 import { useDeviceType } from "../../hook/useDeviceType";
+import dayjs, { Dayjs } from "dayjs";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 function CreateBankAccount({ open, onClose }: ModalProps) {
 
@@ -20,7 +23,8 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
     const [bankInfo, setBankInfo] = React.useState<BankInfo>({
         bankName: '',
         initialBalance: '',
-        accountNumber: ''
+        accountNumber: '',
+        initialDate: ''
     });
 
     const [errors, setErrors] = React.useState<FormErrors>({});
@@ -29,7 +33,8 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
         setBankInfo({
             bankName: '',
             initialBalance: '',
-            accountNumber: ''
+            accountNumber: '',
+            initialDate: ''
         });
         setErrors({});
         onClose();
@@ -58,6 +63,34 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
         }
     };
 
+    const handleSelectDate = (newValue: Dayjs | null) => {
+        const value = newValue?.toISOString()
+        setBankInfo({
+            ...bankInfo,
+            initialDate: String(value)
+        })
+
+        setErrors({
+            ...errors,
+            initialDate: ''
+        });
+
+
+        if (!newValue || !dayjs(newValue.format("DD/MM/YYYY"), "DD/MM/YYYY", true).isValid()) {
+            return setErrors({
+                ...errors,
+                initialDate: 'Thời gian không hợp lệ'
+            });
+        }
+
+        if (newValue.isAfter(dayjs(), 'day')) {
+            return setErrors({
+                ...errors,
+                initialDate: 'Thời gian không được lớn hơn hôm nay'
+            });
+        }
+    }
+
     const handleSelectChange = (e: SelectChangeEvent<string>): void => {
         const { name, value } = e.target;
         setBankInfo(prev => ({
@@ -75,7 +108,7 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
 
 
     const validateForm = (): boolean => {
-        const newErrors: FormErrors = {};
+        const newErrors = { ...errors };
 
         if (!bankInfo.bankName.trim()) {
             newErrors.bankName = 'Vui lòng nhập tên ngân hàng';
@@ -95,13 +128,16 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
             newErrors.initialBalance = 'Số dư không thể âm';
         }
 
+        if (errors.initialDate === '') {
+            delete newErrors.initialDate
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
 
         if (validateForm()) {
             const id = user?.id
@@ -117,6 +153,7 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                 userId: id,
                 initialBalance: initialBalanceConvertFloat,
                 balance: initialBalanceConvertFloat,
+                initialDate: dayjs(bankInfo.initialDate).toDate()
             }
 
             try {
@@ -146,7 +183,7 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
 
 
 
-        }
+        } 
     };
 
     const hasError = (field: keyof FormErrors): boolean => {
@@ -267,7 +304,6 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
 
                         {/* Số dư ban đầu */}
                         <Box>
-
                             <TextField
                                 fullWidth
                                 size='small'
@@ -307,6 +343,33 @@ function CreateBankAccount({ open, onClose }: ModalProps) {
                                 </Typography>
                             ) : <Typography variant="caption" color="error" height={'20px'} sx={{ mt: 0.5, display: 'block' }}></Typography>}
                         </Box>
+
+                        {/* Chọn thời gian */}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                                label="Ngày tạo"
+                                value={
+                                    bankInfo.initialDate
+                                        ? dayjs(bankInfo.initialDate) // có giá trị -> dùng giá trị đó
+                                        : null                    // chưa có -> mặc định ngày hiện tại
+                                }
+                                onChange={handleSelectDate}
+                                maxDate={dayjs()}
+                                // minDate={bankData?.initialDate ? dayjs(bankData?.initialDate) : undefined}
+                                format='DD/MM/YYYY'
+                                slotProps={{
+                                    textField: {
+                                        size: 'small',
+                                        fullWidth: true,
+                                        required: true,
+                                        error: !!errors.initialDate,
+                                        helperText: errors.initialDate ? errors.initialDate : ' '
+                                        ,
+                                    }
+                                }}
+
+                            />
+                        </LocalizationProvider>
 
                         {/* Nút hành động */}
                         <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
